@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>فرآیند بارگذاری digipay.com برای دیجی‌کارت</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #05070e;
+      --card: #080c18;
+      --line: #31415f;
+      --text: #e6ecff;
+      --muted: #8d98b6;
+      --accent: #5d79ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 20% -10%, #182443 0%, #05070e 58%);
+      color: var(--text);
+      font-family: "Vazirmatn", sans-serif;
+    }
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(680px, 1fr) 400px;
+      gap: 16px;
+      padding: 16px;
+    }
+    .left-column { display: grid; grid-template-rows: 330px 1fr; gap: 16px; min-height: calc(100vh - 32px); }
+    .card {
+      background: linear-gradient(180deg, rgba(10, 16, 34, 0.95), rgba(8, 12, 24, 0.98));
+      border: 1px solid #1e2a48;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+    .desk { padding: 14px; }
+    .stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(#d7e4ff 1px, transparent 1px),
+        radial-gradient(#a6c2ff 1px, transparent 1px),
+        radial-gradient(#ffffff 1.3px, transparent 1.3px);
+      background-size: 120px 120px, 160px 160px, 210px 210px;
+      background-position: 0 0, 40px 70px, 90px 15px;
+      opacity: 0.33;
+      animation: twinkle 6s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    @keyframes twinkle { from { opacity: 0.22; } to { opacity: 0.5; } }
+    .desk-svg { position: relative; z-index: 1; width: 100%; height: 100%; }
+    .monitor-screen {
+      position: absolute;
+      top: 75px;
+      right: 198px;
+      width: 228px;
+      height: 130px;
+      border-radius: 8px;
+      border: 1px solid #2f4065;
+      background: #0e1529;
+      box-shadow: inset 0 0 22px rgba(116, 167, 255, 0.14);
+      padding: 10px;
+      z-index: 2;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .address-bar {
+      border: 1px solid #31446f;
+      border-radius: 6px;
+      padding: 2px 8px;
+      color: #a9bdf3;
+      font-size: 11px;
+      margin-bottom: 8px;
+      direction: ltr;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .cursor { display: inline-block; width: 7px; animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .mini-bars div {
+      height: 8px;
+      border-radius: 4px;
+      margin-top: 6px;
+      background: #1e2b46;
+      overflow: hidden;
+      position: relative;
+    }
+    .mini-bars span {
+      position: absolute; inset: 0 auto 0 0;
+      width: var(--w, 0%);
+      background: var(--c, #6fa5ff);
+      transition: width 0.7s ease;
+    }
+    .thought {
+      position: absolute;
+      right: 520px;
+      top: 26px;
+      background: #f2f6ff;
+      color: #1f2e53;
+      padding: 10px 13px;
+      border-radius: 22px;
+      font-size: 15px;
+      font-weight: 700;
+      z-index: 4;
+      transition: opacity 0.45s ease;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.35);
+    }
+    .thought::after {
+      content: "";
+      position: absolute;
+      right: 30px;
+      bottom: -10px;
+      width: 16px;
+      height: 16px;
+      background: #f2f6ff;
+      border-radius: 50%;
+    }
+    .thought.hidden { opacity: 0; pointer-events: none; }
+
+    .network { padding: 14px; }
+    .network-svg { width: 100%; height: 100%; }
+    .node-label { fill: #d4e0ff; font-size: 12px; font-weight: 700; }
+    .node-sub { fill: #8491b2; font-size: 10px; }
+    .node-shape { fill: #0f1730; stroke: #3e5482; stroke-width: 1.3; transition: all 0.3s ease; }
+    .node.active .node-shape { stroke: #8cb6ff; filter: drop-shadow(0 0 8px rgba(114, 178, 255, 0.55)); }
+    .wire { stroke: var(--line); stroke-width: 5; stroke-linecap: round; fill: none; opacity: 0.6; transition: stroke 0.25s ease, opacity 0.25s ease; }
+    .wire.active { stroke: #7ea9ff; opacity: 0.95; }
+    .wire.tls { stroke: #ff4b4b; }
+    .packet {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      filter: blur(0.2px) drop-shadow(0 0 8px currentColor);
+      opacity: 0;
+      z-index: 8;
+    }
+    .dialog {
+      position: absolute;
+      max-width: 260px;
+      background: rgba(8, 15, 32, 0.96);
+      border: 1px solid #345082;
+      color: #cfe0ff;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      z-index: 6;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .dialog.show { opacity: 1; }
+    .edge-badge {
+      position: absolute;
+      left: 65%;
+      top: 72%;
+      transform: translateX(-50%);
+      background: rgba(114, 134, 255, 0.2);
+      border: 1px dashed #8ca2ff;
+      color: #c9d6ff;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      z-index: 5;
+      opacity: 0;
+      transition: opacity .35s ease;
+    }
+    .edge-badge.show { opacity: 1; }
+
+    .panel {
+      position: sticky;
+      top: 16px;
+      height: calc(100vh - 32px);
+      overflow: auto;
+      padding: 20px;
+      background: var(--card);
+      border: 1px solid #202d4f;
+      border-radius: 16px;
+    }
+    .pill {
+      display: inline-block;
+      background: #213664;
+      color: #c8daff;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .panel h2 { margin: 0 0 6px; font-size: 23px; }
+    .subtitle { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+    .explain {
+      background: #0d152c;
+      border: 1px solid #2d3d65;
+      border-radius: 12px;
+      padding: 14px;
+      line-height: 1.85;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .term {
+      display: block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: #93a5cc;
+      font-size: 12px;
+      margin-top: 8px;
+      direction: ltr;
+      text-align: left;
+    }
+    .dots { display: flex; gap: 8px; margin: 10px 0 20px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #27324e; }
+    .dot.active { background: #7aa7ff; box-shadow: 0 0 12px #7aa7ff; }
+    button {
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #5e7dff, #4f6be4);
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 12px 20px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <section class="left-column">
+      <div class="card desk">
+        <div class="stars"></div>
+        <div class="thought" id="thought">میخوام دیجی‌کارت رو ببینم</div>
+        <svg class="desk-svg" viewBox="0 0 900 330" aria-hidden="true">
+          <rect x="0" y="250" width="900" height="80" fill="#0b1326" />
+          <rect x="130" y="218" width="420" height="15" rx="8" fill="#13203d"/>
+          <line x1="185" y1="190" x2="185" y2="248" stroke="#9cb2df" stroke-width="6" />
+          <line x1="185" y1="185" x2="220" y2="145" stroke="#9cb2df" stroke-width="6" />
+          <circle id="head" cx="226" cy="120" r="24" fill="#ffc89d" />
+          <line x1="226" y1="145" x2="226" y2="192" stroke="#ffc89d" stroke-width="6" />
+          <line x1="226" y1="160" x2="188" y2="175" stroke="#ffc89d" stroke-width="6" />
+          <line x1="226" y1="160" x2="254" y2="175" stroke="#ffc89d" stroke-width="6" />
+          <line id="smile" x1="218" y1="128" x2="234" y2="128" stroke="#56311c" stroke-width="2.8" stroke-linecap="round" />
+          <circle cx="218" cy="115" r="2.3" fill="#56311c"/>
+          <circle cx="234" cy="115" r="2.3" fill="#56311c"/>
+          <rect x="320" y="75" width="280" height="155" rx="13" fill="#111e3b" stroke="#3a4f80" />
+          <rect x="333" y="90" width="254" height="118" rx="9" fill="#0f172d" stroke="#2f426c" />
+          <rect x="430" y="230" width="60" height="10" rx="5" fill="#2d416d"/>
+          <rect x="414" y="240" width="95" height="11" rx="5" fill="#13203f"/>
+        </svg>
+        <div class="monitor-screen" id="monitor"></div>
+      </div>
+
+      <div class="card network" id="networkCard">
+        <svg class="network-svg" viewBox="0 0 1000 320" aria-hidden="true">
+          <path id="mainWire" class="wire" d="M75 145 H930"></path>
+          <path id="dnsBranch" class="wire" d="M75 145 V230 H210"></path>
+
+          <g id="node-browser" class="node">
+            <circle class="node-shape" cx="75" cy="145" r="20"></circle>
+            <text class="node-label" x="75" y="118" text-anchor="middle">Browser</text>
+          </g>
+          <g id="node-router" class="node">
+            <rect class="node-shape" x="170" y="126" width="44" height="38" rx="8"></rect>
+            <text class="node-label" x="192" y="118" text-anchor="middle">Home Router</text>
+          </g>
+          <g id="node-isp" class="node">
+            <rect class="node-shape" x="295" y="126" width="58" height="38" rx="8"></rect>
+            <text class="node-label" x="324" y="118" text-anchor="middle">ISP Network</text>
+          </g>
+          <g id="node-internet" class="node">
+            <ellipse class="node-shape" cx="470" cy="145" rx="58" ry="29"></ellipse>
+            <text class="node-label" x="470" y="149" text-anchor="middle">Internet</text>
+          </g>
+          <g id="node-edge" class="node">
+            <rect class="node-shape" x="615" y="126" width="58" height="38" rx="10"></rect>
+            <text class="node-label" x="644" y="118" text-anchor="middle">Edge / CDN</text>
+          </g>
+          <g id="node-origin" class="node">
+            <rect class="node-shape" x="820" y="122" width="82" height="46" rx="10"></rect>
+            <text class="node-label" x="861" y="118" text-anchor="middle">DigiPay Origin</text>
+            <text class="node-sub" x="861" y="182" text-anchor="middle">digipay.com</text>
+          </g>
+
+          <g id="node-dns" class="node">
+            <rect class="node-shape" x="210" y="209" width="76" height="40" rx="10"></rect>
+            <text class="node-label" x="248" y="205" text-anchor="middle">DNS Server</text>
+          </g>
+        </svg>
+        <div class="packet" id="packet"></div>
+        <div class="dialog" id="dialog"></div>
+        <div class="edge-badge" id="edgeBadge">Cache MISS → forward to Origin</div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <span class="pill" id="stepPill">مرحله ۱ از ۹</span>
+      <h2 id="stepTitle"></h2>
+      <p class="subtitle" id="stepSubtitle"></p>
+      <div class="explain" id="stepExplain"></div>
+      <div class="dots" id="dots"></div>
+      <button id="nextBtn">مرحله بعد</button>
+    </aside>
+  </main>
+
+  <script>
+    const steps = [
+      {
+        title: "تصمیم کاربر",
+        subtitle: "کاربر تصمیم می‌گیرد دیجی‌کارت را در digipay.com بررسی کند.",
+        fa: "هنوز هیچ درخواستی به شبکه نرفته است؛ فقط نیت کاربر شکل گرفته.",
+        en: "User Intent (No Network Activity)"
+      },
+      {
+        title: "باز کردن مرورگر و تایپ آدرس",
+        subtitle: "URL به‌صورت حرف‌به‌حرف در نوار آدرس وارد می‌شود.",
+        fa: "مرورگر هنوز IP ندارد، پس اول باید نام دامنه resolve شود.",
+        en: "Typing URL / Hostname Resolution Needed"
+      },
+      {
+        title: "ارسال DNS Query",
+        subtitle: "مرورگر از DNS می‌پرسد IP دامنه digipay.com چیست.",
+        fa: "پیام از شاخه DNS پایین می‌رود تا رکورد A/AAAA پیدا شود.",
+        en: "DNS Query"
+      },
+      {
+        title: "دریافت DNS Reply",
+        subtitle: "DNS پاسخ می‌دهد و IP به مرورگر می‌رسد.",
+        fa: "حالا مرورگر مقصد را می‌شناسد و می‌تواند اتصال شبکه را شروع کند.",
+        en: "DNS Response (IP Address)"
+      },
+      {
+        title: "TCP Handshake",
+        subtitle: "سه پیام SYN، SYN-ACK، ACK برای ساخت کانال TCP رد و بدل می‌شود.",
+        fa: "بدون این handshake انتقال قابل‌اعتماد داده HTTP ممکن نیست.",
+        en: "TCP 3-Way Handshake"
+      },
+      {
+        title: "TLS Handshake + Edge/Caching",
+        subtitle: "کانال امن TLS برقرار می‌شود و قفل مرورگر نمایش داده می‌شود.",
+        fa: "Edge یک CDN نزدیک کاربر است. فایل‌های استاتیک از cache Edge می‌آیند، اما /digikart پویا است و Cache MISS می‌خورد و به Origin فوروارد می‌شود.",
+        en: "TLS Handshake / CDN Edge Cache MISS"
+      },
+      {
+        title: "ارسال HTTP GET /digikart",
+        subtitle: "مرورگر درخواست صفحه دیجی‌کارت را به سمت Origin می‌فرستد.",
+        fa: "درخواست بعد از عبور از شبکه و Edge به سرور اصلی اپلیکیشن می‌رسد.",
+        en: "HTTP Request"
+      },
+      {
+        title: "پاسخ 200 OK",
+        subtitle: "HTML اولیه برمی‌گردد و Parsing صفحه شروع می‌شود.",
+        fa: "DOM اولیه ساخته می‌شود اما هنوز CSS/JS/IMG کامل نشده‌اند.",
+        en: "HTTP 200 Response + HTML Parse"
+      },
+      {
+        title: "دریافت Assetها و رندر کامل",
+        subtitle: "CSS/JS/IMG از Edge درخواست و دریافت می‌شوند و صفحه کامل می‌شود.",
+        fa: "با تکمیل منابع استاتیک، صفحه نهایی دیجی‌کارت رندر می‌شود و تجربه کاربر کامل است.",
+        en: "Static Assets Fetch + Final Render"
+      }
+    ];
+
+    const points = {
+      browser: [75,145],
+      router: [192,145],
+      isp: [324,145],
+      internet: [470,145],
+      edge: [644,145],
+      origin: [861,145],
+      dnsJunction: [75,230],
+      dns: [248,230]
+    };
+
+    const packet = document.getElementById("packet");
+    const dialog = document.getElementById("dialog");
+    const edgeBadge = document.getElementById("edgeBadge");
+    const thought = document.getElementById("thought");
+    const monitor = document.getElementById("monitor");
+    const head = document.getElementById("head");
+    const smile = document.getElementById("smile");
+    const mainWire = document.getElementById("mainWire");
+    const dnsBranch = document.getElementById("dnsBranch");
+    const stepPill = document.getElementById("stepPill");
+    const stepTitle = document.getElementById("stepTitle");
+    const stepSubtitle = document.getElementById("stepSubtitle");
+    const stepExplain = document.getElementById("stepExplain");
+    const dots = document.getElementById("dots");
+    const nextBtn = document.getElementById("nextBtn");
+
+    let stepIndex = 0;
+    let typingTimer = null;
+    let actionToken = 0;
+    let audioCtx;
+
+    dots.innerHTML = steps.map(() => "<div class='dot'></div>").join("");
+
+    function protocolColor(kind) {
+      if (kind === "dns") return "#42a5ff";
+      if (kind === "dnsReply") return "#34e28d";
+      if (kind === "tcp") return "#ffd54a";
+      if (kind === "tcpAck") return "#ff9a42";
+      if (kind === "tls") return "#ff4e4e";
+      if (kind === "httpReq") return "#b86bff";
+      if (kind === "httpRes") return "#49f6ff";
+      if (kind === "assetCss") return "#6de7ff";
+      if (kind === "assetJs") return "#ff73d5";
+      if (kind === "assetImg") return "#85ff8a";
+      return "#9fb3ff";
+    }
+
+    function ensureAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playTone(kind) {
+      ensureAudio();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const map = {
+        dns: ["sine", 560], dnsReply: ["triangle", 430],
+        tcp: ["square", 300], tcpAck: ["square", 360],
+        tls: ["sawtooth", 250], httpReq: ["triangle", 640],
+        httpRes: ["sine", 690], assetCss: ["triangle", 520],
+        assetJs: ["square", 600], assetImg: ["sine", 470]
+      };
+      const [type, freq] = map[kind] || ["sine", 520];
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.22);
+    }
+
+    function setDialog(text, x, y) {
+      dialog.textContent = text;
+      dialog.style.left = x + "px";
+      dialog.style.top = y + "px";
+      dialog.classList.add("show");
+    }
+    function clearDialog() { dialog.classList.remove("show"); }
+
+    function setWireActive(on, tls) {
+      mainWire.classList.toggle("active", on);
+      dnsBranch.classList.toggle("active", on);
+      mainWire.classList.toggle("tls", !!tls);
+    }
+
+    function activateNodes(names) {
+      document.querySelectorAll(".node").forEach((n) => n.classList.remove("active"));
+      names.forEach((name) => document.getElementById("node-" + name)?.classList.add("active"));
+    }
+
+    function animatePacket(path, kind, duration = 780, token = actionToken) {
+      return new Promise((resolve) => {
+        packet.style.opacity = "1";
+        packet.style.background = protocolColor(kind);
+        packet.style.color = protocolColor(kind);
+        playTone(kind);
+        const start = performance.now();
+        function tick(now) {
+          if (token !== actionToken) { packet.style.opacity = "0"; return resolve(); }
+          const t = Math.min(1, (now - start) / duration);
+          const seg = (path.length - 1) * t;
+          const i = Math.min(path.length - 2, Math.floor(seg));
+          const local = seg - i;
+          const [x1, y1] = path[i];
+          const [x2, y2] = path[i + 1];
+          const x = x1 + (x2 - x1) * local;
+          const y = y1 + (y2 - y1) * local;
+          packet.style.left = x + "px";
+          packet.style.top = y + "px";
+          if (t < 1) requestAnimationFrame(tick);
+          else { packet.style.opacity = "0"; resolve(); }
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    function updateMonitor(state) {
+      if (typingTimer) clearInterval(typingTimer);
+      if (state === "idle") {
+        monitor.innerHTML = "<div style='color:#9db2df;margin-top:36px;text-align:center'>آماده برای جستجو...</div>";
+      } else if (state === "typing") {
+        monitor.innerHTML = "<div class='address-bar' id='typedBar'></div><div style='color:#7388bb'>مرورگر در حال آماده‌سازی DNS...</div>";
+        const target = "https://digipay.com/digikart";
+        const el = document.getElementById("typedBar");
+        let i = 0;
+        typingTimer = setInterval(() => {
+          i += 1;
+          el.innerHTML = target.slice(0, i) + "<span class='cursor'>|</span>";
+          if (i >= target.length) clearInterval(typingTimer);
+        }, 70);
+      } else if (state === "ip") {
+        monitor.innerHTML = "<div class='address-bar'>https://digipay.com</div><div>DNS جواب داد:</div><div style='margin-top:4px;color:#8cc2ff;font-family:monospace'>93.184.216.34</div>";
+      } else if (state === "tls") {
+        monitor.innerHTML = "<div class='address-bar'>🔒 https://digipay.com</div><div style='color:#87a1d4'>TLS session established</div>";
+      } else if (state === "html") {
+        monitor.innerHTML = "<div class='address-bar'>🔒 https://digipay.com/digikart</div><div style='color:#8ea4d2'>HTML دریافت شد، Parsing...</div><div style='margin-top:6px;color:#9db1df;font-family:monospace'>&lt;html&gt; &lt;head&gt; &lt;body&gt; ...</div>";
+      } else if (state === "assets") {
+        monitor.innerHTML = `
+          <div class='address-bar'>🔒 https://digipay.com/digikart</div>
+          <div>بارگذاری منابع:</div>
+          <div class='mini-bars'>
+            <div> <span id='cssBar' style='--c:#66d9ff;--w:0%'></span> </div>
+            <div> <span id='jsBar' style='--c:#c88bff;--w:0%'></span> </div>
+            <div> <span id='imgBar' style='--c:#7cff93;--w:0%'></span> </div>
+          </div>`;
+      } else if (state === "done") {
+        monitor.innerHTML = "<div class='address-bar'>🔒 https://digipay.com/digikart</div><div style='color:#85ffac'>صفحه دیجی‌کارت کامل رندر شد.</div>";
+      }
+    }
+
+    function fillBar(id, w) {
+      const el = document.getElementById(id);
+      if (el) el.style.setProperty("--w", w + "%");
+    }
+
+    async function runStep(i) {
+      const token = ++actionToken;
+      clearDialog();
+      setWireActive(false, false);
+      edgeBadge.classList.toggle("show", i >= 5);
+      thought.classList.toggle("hidden", i !== 0);
+      head.setAttribute("fill", i === 8 ? "#ffd4a8" : "#ffc89d");
+      smile.setAttribute("y1", i === 8 ? "127" : "128");
+      smile.setAttribute("y2", i === 8 ? "131" : "128");
+      activateNodes(["browser"]);
+
+      if (i === 0) {
+        updateMonitor("idle");
+      } else if (i === 1) {
+        updateMonitor("typing");
+      } else if (i === 2) {
+        updateMonitor("typing");
+        setDialog("DNS Query: digipay.com ؟", 80, 210);
+        setWireActive(true, false);
+        activateNodes(["browser", "dns"]);
+        await animatePacket([points.browser, points.dnsJunction, points.dns], "dns", 980, token);
+      } else if (i === 3) {
+        updateMonitor("ip");
+        setDialog("DNS → کامپیوتر: 93.184.216.34", 160, 196);
+        setWireActive(true, false);
+        activateNodes(["browser", "dns"]);
+        await animatePacket([points.dns, points.dnsJunction, points.browser], "dnsReply", 980, token);
+      } else if (i === 4) {
+        updateMonitor("ip");
+        setDialog("TCP: SYN → SYN-ACK → ACK", 455, 95);
+        setWireActive(true, false);
+        activateNodes(["browser","router","isp","internet","edge","origin"]);
+        const path = [points.browser, points.router, points.isp, points.internet, points.edge, points.origin];
+        await animatePacket(path, "tcp", 920, token);
+        await animatePacket([...path].reverse(), "tcpAck", 920, token);
+        await animatePacket(path, "tcp", 920, token);
+      } else if (i === 5) {
+        updateMonitor("tls");
+        setDialog("TLS Handshake + گواهی امنیتی", 560, 88);
+        setWireActive(true, true);
+        activateNodes(["browser","router","isp","internet","edge","origin"]);
+        const path = [points.browser, points.router, points.isp, points.internet, points.edge, points.origin];
+        await animatePacket(path, "tls", 980, token);
+        await animatePacket([...path].reverse(), "tls", 980, token);
+      } else if (i === 6) {
+        updateMonitor("tls");
+        setDialog("HTTP GET /digikart", 640, 111);
+        setWireActive(true, false);
+        activateNodes(["browser","router","isp","internet","edge","origin"]);
+        await animatePacket([points.browser, points.router, points.isp, points.internet, points.edge, points.origin], "httpReq", 1200, token);
+      } else if (i === 7) {
+        updateMonitor("html");
+        setDialog("200 OK + HTML", 624, 183);
+        setWireActive(true, false);
+        activateNodes(["browser","router","isp","internet","edge","origin"]);
+        await animatePacket([points.origin, points.edge, points.internet, points.isp, points.router, points.browser], "httpRes", 1200, token);
+      } else if (i === 8) {
+        updateMonitor("assets");
+        setDialog("Assets از Edge: CSS / JS / IMG", 644, 204);
+        setWireActive(true, false);
+        activateNodes(["browser","router","isp","internet","edge"]);
+        const toEdge = [points.browser, points.router, points.isp, points.internet, points.edge];
+        const backEdge = [...toEdge].reverse();
+        await animatePacket(toEdge, "assetCss", 800, token); await animatePacket(backEdge, "assetCss", 800, token); fillBar("cssBar", 100);
+        await animatePacket(toEdge, "assetJs", 840, token); await animatePacket(backEdge, "assetJs", 840, token); fillBar("jsBar", 100);
+        await animatePacket(toEdge, "assetImg", 880, token); await animatePacket(backEdge, "assetImg", 880, token); fillBar("imgBar", 100);
+        setTimeout(() => { if (token === actionToken) updateMonitor("done"); }, 180);
+      }
+    }
+
+    function renderStep() {
+      const s = steps[stepIndex];
+      stepPill.textContent = `مرحله ${stepIndex + 1} از ۹`;
+      stepTitle.textContent = s.title;
+      stepSubtitle.textContent = s.subtitle;
+      stepExplain.innerHTML = `${s.fa}<span class="term">${s.en}</span>`;
+      [...dots.children].forEach((d, idx) => d.classList.toggle("active", idx <= stepIndex));
+      nextBtn.disabled = stepIndex >= steps.length - 1;
+      nextBtn.textContent = stepIndex >= steps.length - 1 ? "پایان آموزش" : "مرحله بعد";
+      runStep(stepIndex);
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (stepIndex < steps.length - 1) {
+        stepIndex += 1;
+        renderStep();
+      }
+    });
+
+    renderStep();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>دیجی‌پی × دیجیکالا — سگمنت ۱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --dk-red: #ef394e;
+      --dp-purple: #5c2d91;
+      --dp-purple-light: #f3eef9;
+      --dp-green: #00a049;
+      --dp-amber: #f5a623;
+      --dp-red: #e53935;
+      --dp-blue: #1565c0;
+      --dp-orange: #e65100;
+      --gray-50: #f8f9fa;
+      --gray-100: #f0f1f2;
+      --gray-200: #e0e0e2;
+      --gray-400: #a1a3a8;
+      --gray-600: #62666d;
+      --gray-900: #23254e;
+      --white: #fff;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Vazirmatn', Tahoma, sans-serif; background: #1a1a2e; color: var(--gray-900); min-height: 100vh; }
+
+    .proto-header { background: linear-gradient(135deg, var(--dp-purple), #3d1f6e); color: #fff; padding: 16px 24px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 12px rgba(0,0,0,.2); }
+    .proto-header h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .proto-header p { font-size: .78rem; opacity: .85; }
+    .proto-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .proto-tag { font-size: .7rem; padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); }
+    .proto-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.2); }
+    .control-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .control-group label { font-size: .74rem; }
+    .control-group select { font-family: inherit; font-size: .78rem; padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.12); color: #fff; }
+    .control-group select option { color: #333; }
+    .level-btns, .cart-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+    .level-btn, .cart-btn { font-family: inherit; font-size: .72rem; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; cursor: pointer; }
+    .level-btn.active { background: #fff; color: var(--dp-purple); font-weight: 600; }
+    .level-btn[data-level="L0"].active { background: #90caf9; color: #1565c0; }
+    .level-btn[data-level="L1"].active { background: #a5d6a7; color: #2e7d32; }
+    .level-btn[data-level="L2"].active { background: #ffe082; color: #f57f17; }
+    .level-btn[data-level="L3"].active { background: #ef9a9a; color: #c62828; }
+    .pay-method-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+    .pay-method-btn { font-family: inherit; font-size: .72rem; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; cursor: pointer; }
+    .pay-method-btn.active { background: #fff; color: var(--dp-purple); font-weight: 600; }
+
+    .proto-body { display: flex; max-width: 1400px; margin: 0 auto; }
+    .proto-nav { width: 190px; background: #16213e; padding: 12px 0; border-left: 1px solid #2a2a4a; flex-shrink: 0; }
+    .proto-nav button { display: block; width: 100%; text-align: right; font-family: inherit; font-size: .8rem; padding: 11px 18px; border: none; background: transparent; color: #b0b3c5; cursor: pointer; border-right: 3px solid transparent; }
+    .proto-nav button.active { background: rgba(92,45,145,.25); color: #fff; border-right-color: var(--dp-purple); font-weight: 600; }
+    .proto-nav button.disabled-nav { opacity: .4; pointer-events: none; }
+    .proto-nav .nav-section { font-size: .62rem; color: #6b6e8a; padding: 14px 18px 4px; }
+    .proto-main { flex: 1; padding: 20px; overflow: auto; }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .spec-panel { background: #16213e; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; color: #c5cae9; font-size: .76rem; line-height: 1.65; border: 1px solid #2a3a5c; }
+    .spec-panel strong { color: #fff; }
+    .spec-panel em { color: #81c784; font-style: normal; }
+    .spec-panel .api { color: #90caf9; font-family: monospace; font-size: .7rem; }
+
+    .dk-frame { background: var(--gray-50); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 28px rgba(0,0,0,.2); max-width: 400px; margin: 0 auto; }
+    .dk-topbar { background: #fff; padding: 10px 14px; border-bottom: 1px solid var(--gray-200); font-size: .84rem; color: var(--gray-600); }
+    .dk-topbar .logo { color: var(--dk-red); font-weight: 700; }
+    .dk-content { padding: 14px; min-height: 420px; }
+    .dk-cta-bar { background: #fff; padding: 12px 14px; border-top: 1px solid var(--gray-200); display: flex; gap: 10px; align-items: center; }
+    .dk-cta-bar .price-block { flex: 1; font-size: .74rem; color: var(--gray-600); }
+    .dk-cta-bar strong { display: block; font-size: .95rem; color: var(--dk-red); }
+    .dk-btn { font-family: inherit; padding: 11px 18px; border-radius: var(--radius); border: none; font-weight: 600; font-size: .84rem; cursor: pointer; background: var(--dk-red); color: #fff; }
+
+    /* ── Experience widgets (یک پیشنهاد — نه لیست) ── */
+    .xp { border-radius: 10px; overflow: hidden; margin-top: 10px; }
+    .xp-cta { display: block; width: 100%; margin-top: 12px; padding: 11px; border: none; border-radius: 8px; font-family: inherit; font-weight: 600; font-size: .82rem; cursor: pointer; }
+    .xp-foot { font-size: .68rem; opacity: .85; margin-top: 8px; line-height: 1.45; }
+
+    /* تک‌قسطه — compact inline */
+    .xp--single { background: var(--dp-purple-light); border: 1px solid #d8ccf0; padding: 12px; }
+    .xp--single .xp-head { display: flex; align-items: center; gap: 8px; }
+    .xp--single .xp-icon { font-size: 1.2rem; }
+    .xp--single .xp-title { font-weight: 700; font-size: .84rem; color: var(--dp-purple); }
+    .xp--single .xp-highlight { font-size: 1rem; font-weight: 700; color: var(--dp-purple); margin-top: 6px; }
+    .xp--single .xp-cta { background: var(--dp-purple); color: #fff; }
+
+    /* ۴قسطه — installment card */
+    .xp--four { background: #fff; border: 2px solid var(--dp-blue); padding: 14px; }
+    .xp--four .xp-label { font-size: .68rem; color: var(--dp-blue); font-weight: 600; text-transform: uppercase; letter-spacing: .02em; }
+    .xp--four .xp-title { font-weight: 700; font-size: .9rem; margin: 4px 0 8px; }
+    .xp-four-summary {
+      font-size: .8rem; line-height: 1.55; color: var(--gray-800); margin: 0 0 12px;
+    }
+    .xp-four-summary strong { color: var(--dp-blue); font-weight: 700; }
+    .pay-card-widget .xp-four-summary { margin-bottom: 8px; }
+    .xp--four .xp-cta { background: var(--dp-blue); color: #fff; }
+
+    /* وام — hero */
+    .xp--loan { background: linear-gradient(145deg, #5c2d91, #3d1f6e); color: #fff; padding: 16px; }
+    .xp--loan .xp-label { font-size: .68rem; opacity: .8; }
+    .xp--loan .xp-title { font-size: 1rem; font-weight: 700; margin: 6px 0; }
+    .xp--loan .xp-big { font-size: 1.35rem; font-weight: 700; }
+    .xp--loan .xp-big small { font-size: .72rem; font-weight: 400; opacity: .9; }
+    .xp--loan .xp-cta { background: #fff; color: var(--dp-purple); }
+
+    /* L3 بدهی */
+    .xp--debt { background: #ffebee; border: 1px solid #ffcdd2; padding: 14px; color: #c62828; }
+    .xp--debt .xp-cta { background: var(--dk-red); color: #fff; }
+
+    /* L1 تک‌قسطه آماده پرداخت */
+    .xp--ready { background: #e8f5e9; border: 1px solid #a5d6a7; padding: 14px; }
+    .xp--ready .xp-cta { background: var(--dp-green); color: #fff; }
+
+    .dp-badge { display: inline-flex; align-items: center; gap: 5px; font-size: .7rem; font-weight: 600; padding: 3px 9px; border-radius: 16px; background: var(--dp-purple-light); color: var(--dp-purple); margin-bottom: 8px; }
+    .dp-badge.warn { background: #fff8e1; color: #f57f17; }
+    .dp-badge.block { background: #ffebee; color: #c62828; }
+
+    .plp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .plp-item { background: #fff; border-radius: var(--radius); padding: 10px; border: 1px solid var(--gray-200); }
+    .plp-item .thumb, .product-thumb, .pdp-thumb {
+      background: var(--gray-100); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gray-400); font-size: .65rem; font-weight: 600;
+    }
+    .plp-item .thumb { height: 80px; margin-bottom: 6px; }
+    .product-thumb { width: 64px; height: 64px; flex-shrink: 0; }
+    .pdp-thumb { height: 160px; margin-bottom: 10px; font-size: .75rem; }
+    .plp-item .title { font-size: .73rem; line-height: 1.3; height: 2.5em; overflow: hidden; margin-bottom: 4px; }
+    .plp-item .price { font-size: .8rem; font-weight: 700; color: var(--dk-red); }
+    .plp-micro { font-size: .64rem; margin-top: 5px; font-weight: 600; line-height: 1.35; padding: 4px 6px; border-radius: 4px; }
+    .plp-micro.m-single { background: var(--dp-purple-light); color: var(--dp-purple); }
+    .plp-micro.m-four { background: #e3f2fd; color: var(--dp-blue); }
+    .plp-micro.m-loan { background: #fff3e0; color: var(--dp-orange); }
+    .plp-micro.m-wallet { background: #e8f5e9; color: #2e7d32; }
+    .plp-micro.m-neutral { background: var(--gray-100); color: var(--gray-600); }
+
+    .plp-banner { background: linear-gradient(90deg, #f3eef9, #e8f5e9); border: 1px solid #d1c4e9; border-radius: var(--radius); padding: 12px; font-size: .78rem; line-height: 1.5; margin-bottom: 4px; }
+    .plp-banner strong { display: block; margin-bottom: 4px; }
+    .plp-filter-hint { font-size: .68rem; color: var(--gray-600); margin-bottom: 8px; padding: 6px 8px; background: #fff; border-radius: 6px; border: 1px dashed var(--gray-200); }
+
+    .product-card { background: #fff; border-radius: var(--radius); padding: 11px; margin-bottom: 8px; border: 1px solid var(--gray-200); display: flex; gap: 10px; }
+    .product-card .title { font-size: .8rem; font-weight: 500; }
+    .product-card .price { font-size: .88rem; font-weight: 700; color: var(--dk-red); margin-top: 2px; }
+
+    .basket-summary { background: #fff; border-radius: var(--radius); padding: 12px; border: 1px solid var(--gray-200); margin-top: 10px; }
+    .basket-row { display: flex; justify-content: space-between; font-size: .8rem; padding: 5px 0; color: var(--gray-600); }
+    .basket-row.total { font-weight: 700; border-top: 1px solid var(--gray-200); margin-top: 6px; padding-top: 8px; color: var(--gray-900); }
+    .basket-row.total span:last-child { color: var(--dk-red); }
+
+  /* ── Merchant Checkout (More Code) ── */
+    .checkout-frame .dk-content { padding: 0; min-height: auto; background: var(--gray-50); }
+    .co-header {
+      background: #fff; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--gray-200); font-size: .9rem; font-weight: 600;
+    }
+    .co-header .co-back, .co-header .co-support { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: var(--gray-600); font-size: 1rem; }
+    .co-hint {
+      background: #fff; padding: 10px 14px; font-size: .78rem; color: var(--gray-600);
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .co-scenario, .basket-scenario {
+      font-size: .68rem; color: var(--dp-purple); padding: 6px 14px;
+      background: var(--dp-purple-light); text-align: center; margin-bottom: 8px; border-radius: 6px;
+    }
+    .pay-list { padding: 10px 12px 0; }
+    .pay-card {
+      background: #fff; border: 1.5px solid var(--gray-200); border-radius: 10px;
+      margin-bottom: 10px; overflow: hidden; cursor: pointer; transition: border-color .15s;
+    }
+    .pay-card.selected { border-color: #2196f3; box-shadow: 0 0 0 1px #2196f3; }
+    .pay-card.disabled { opacity: .55; pointer-events: none; }
+    .pay-card-head {
+      display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px;
+    }
+    .pay-card-head input[type=radio] { margin-top: 3px; accent-color: #2196f3; flex-shrink: 0; }
+    .pay-card-icon {
+      width: 36px; height: 36px; border-radius: 8px; background: var(--gray-100);
+      display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; flex-shrink: 0;
+    }
+    .pay-card-icon.dp { background: #e3f2fd; color: #1565c0; font-weight: 700; font-size: .62rem; }
+    .pay-card-icon.bank { background: #f5f5f5; color: var(--gray-600); }
+    .pay-card-icon.wallet { background: #e8f5e9; color: #2e7d32; }
+    .pay-card-icon.snapp { background: #00d170; color: #fff; font-size: .55rem; }
+    .pay-card-icon.tara { background: #7b1fa2; color: #fff; font-size: .55rem; }
+    .pay-card--wallet-toggle .pay-card-head { align-items: center; }
+    .wallet-switch {
+      width: 44px; height: 26px; background: var(--gray-200); border-radius: 13px;
+      position: relative; flex-shrink: 0; cursor: pointer;
+    }
+    .wallet-switch::after {
+      content: ''; position: absolute; top: 3px; right: 3px; width: 20px; height: 20px;
+      background: #fff; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: .2s;
+    }
+    .wallet-switch.on { background: var(--dp-green); }
+    .wallet-switch.on::after { right: 21px; }
+    .pay-card-body { flex: 1; min-width: 0; }
+    .pay-card-title { font-size: .82rem; font-weight: 600; margin-bottom: 2px; }
+    .pay-card-sub { font-size: .7rem; color: var(--gray-600); line-height: 1.45; }
+    .pay-card-promo { font-size: .7rem; color: #1565c0; font-weight: 500; margin-top: 4px; line-height: 1.4; }
+    .pay-card-compact.selected .pay-card-head { padding-bottom: 12px; }
+    .pay-card-ext { border-top: 1px solid var(--gray-100); padding: 10px 14px; background: #fafafa; font-size: .68rem; color: var(--dp-purple); }
+    .wallet-row {
+      background: #fff; border: 1.5px solid var(--gray-200); border-radius: 10px;
+      margin: 0 12px 10px; padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .wallet-row .wallet-body { flex: 1; }
+    .wallet-row .wallet-title { font-size: .82rem; font-weight: 600; }
+    .wallet-row .wallet-bal { font-size: .68rem; color: var(--gray-600); margin-top: 2px; }
+    .wallet-toggle {
+      width: 44px; height: 26px; border-radius: 13px; background: var(--gray-200);
+      position: relative; flex-shrink: 0; cursor: pointer;
+    }
+    .wallet-toggle::after {
+      content: ''; position: absolute; top: 3px; right: 3px; width: 20px; height: 20px;
+      border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: .2s;
+    }
+    .wallet-toggle.on { background: var(--dp-green); }
+    .wallet-toggle.on::after { right: 21px; }
+    .pay-card-balance { font-size: .68rem; color: var(--gray-600); margin-top: 4px; }
+    .pay-card-balance.low { color: #e65100; }
+    .pay-card-widget {
+      border-top: 1px solid var(--gray-100); padding: 12px 14px; background: #fafafa;
+    }
+    .pay-card-widget { cursor: pointer; }
+    .pay-card-widget .w-title { font-size: .82rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0; }
+    .pay-card-widget--four { padding-top: 0; }
+    .inst-panel {
+      background: #f0f1f2; border-radius: 10px; padding: 12px 10px; margin-top: 10px;
+    }
+    .inst-timeline { position: relative; padding-right: 36px; }
+    .inst-timeline::before {
+      content: ''; position: absolute; right: 13px; top: 14px; bottom: 14px;
+      border-right: 2px dashed #90caf9;
+    }
+    .inst-row {
+      display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;
+      padding: 6px 0; position: relative;
+    }
+    .inst-row:last-child { padding-bottom: 0; }
+    .inst-row-meta { text-align: right; }
+    .inst-row-label { font-size: .72rem; font-weight: 600; color: var(--gray-900); }
+    .inst-row-date { font-size: .65rem; color: var(--gray-600); margin-top: 2px; }
+    .inst-row-amt { font-size: .75rem; font-weight: 700; color: var(--gray-900); white-space: nowrap; }
+    .inst-pie {
+      position: absolute; right: -36px; top: 50%; transform: translateY(-50%);
+      width: 26px; height: 26px; border-radius: 50%; background: conic-gradient(#2196f3 calc(var(--fill) * 25%), #e3f2fd 0);
+      border: 2px solid #fff; box-shadow: 0 0 0 1px #bbdefb;
+    }
+    .inst-note { font-size: .65rem; color: var(--gray-600); margin-top: 10px; line-height: 1.5; text-align: right; }
+    .pay-card-head .pay-card-title--four { font-size: .8rem; font-weight: 700; line-height: 1.4; }
+    .w-acquire {
+      text-align: center; padding: 8px 0;
+    }
+    .w-acquire p { font-size: .75rem; color: var(--gray-600); margin-bottom: 10px; line-height: 1.5; }
+    .w-acquire-btn {
+      display: inline-block; padding: 8px 20px; background: var(--dp-purple); color: #fff;
+      border: none; border-radius: 8px; font-family: inherit; font-size: .78rem; font-weight: 600; cursor: pointer;
+    }
+    .w-single-line {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 12px; background: var(--dp-purple-light); border-radius: 8px; font-size: .78rem;
+    }
+    .w-single-line strong { color: var(--dp-purple); }
+    .co-coupon {
+      background: #fff; margin: 4px 12px 10px; padding: 12px 14px; border-radius: 10px;
+      border: 1px solid var(--gray-200);
+    }
+    .co-coupon label { font-size: .78rem; font-weight: 600; display: block; margin-bottom: 8px; }
+    .co-coupon-row { display: flex; gap: 8px; }
+    .co-coupon-row input {
+      flex: 1; padding: 8px 10px; border: 1px solid var(--gray-200); border-radius: 6px;
+      font-family: inherit; font-size: .78rem;
+    }
+    .co-coupon-row button {
+      padding: 8px 14px; background: var(--gray-100); border: none; border-radius: 6px;
+      font-family: inherit; font-size: .78rem; color: var(--gray-600); cursor: pointer;
+    }
+    .co-terms {
+      display: flex; align-items: center; gap: 8px; padding: 0 14px 12px;
+      font-size: .68rem; color: var(--gray-600);
+    }
+    .co-terms .check { color: var(--dp-green); font-size: .9rem; }
+    .co-footer {
+      background: #fff; padding: 12px 14px 16px; border-top: 1px solid var(--gray-200);
+    }
+    .co-footer .dk-btn { width: 100%; padding: 14px; font-size: .9rem; }
+    .co-gateway-warn {
+      margin: 10px 12px 0; padding: 8px 10px; font-size: .7rem; background: #fff3e0;
+      color: #e65100; border-radius: 6px; border: 1px solid #ffe0b2;
+    }
+    .acquire-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 2000;
+      align-items: flex-end; justify-content: center;
+    }
+    .acquire-overlay.show { display: flex; }
+    .acquire-sheet {
+      background: #fff; width: 100%; max-width: 400px; border-radius: 16px 16px 0 0;
+      padding: 24px 20px 28px; text-align: center; animation: slideUp .25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .acquire-sheet h3 { font-size: 1rem; color: var(--dp-purple); margin-bottom: 8px; }
+    .acquire-sheet p { font-size: .8rem; color: var(--gray-600); line-height: 1.6; margin-bottom: 16px; }
+    .acquire-sheet .acquire-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .acquire-sheet .acquire-btn {
+      width: 100%; padding: 14px; background: var(--dp-purple); color: #fff; border: none;
+      border-radius: 8px; font-family: inherit; font-weight: 600; font-size: .9rem; cursor: pointer;
+    }
+    .acquire-sheet .acquire-close {
+      margin-top: 10px; background: none; border: none; color: var(--gray-600);
+      font-family: inherit; font-size: .78rem; cursor: pointer;
+    }
+
+    .refund-empty { text-align: center; padding: 40px 20px; color: var(--gray-600); }
+    .refund-empty .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .5; }
+    .refund-card { background: #fff; border-radius: var(--radius); padding: 14px; border: 1px solid var(--gray-200); margin-bottom: 12px; font-size: .8rem; }
+    .refund-method-tag {
+      display: inline-block; font-size: .68rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; margin-top: 6px;
+    }
+    .refund-method-tag.t-single { background: var(--dp-purple-light); color: var(--dp-purple); }
+    .refund-method-tag.t-four { background: #e3f2fd; color: var(--dp-blue); }
+    .refund-method-tag.t-loan { background: #fff3e0; color: var(--dp-orange); }
+    .refund-method-tag.t-wallet { background: #e8f5e9; color: #2e7d32; }
+    .refund-timeline { margin-top: 10px; padding: 10px; background: var(--gray-50); border-radius: 8px; font-size: .72rem; }
+    .refund-timeline .rt-row { display: flex; justify-content: space-between; padding: 4px 0; color: var(--gray-600); }
+    .refund-timeline .rt-row.done { color: var(--dp-green); font-weight: 600; }
+    .refund-dest {
+      margin-top: 10px; padding: 10px 12px; border-radius: 8px; font-size: .78rem; line-height: 1.55;
+      background: #e8f5e9; border: 1px solid #a5d6a7; color: #2e7d32; font-weight: 600;
+    }
+    .refund-dest.to-credit { background: var(--dp-purple-light); border-color: #d8ccf0; color: var(--dp-purple); }
+    .refund-dest.to-loan { background: #fff3e0; border-color: #ffcc80; color: #e65100; }
+    .l0-pay-preview {
+      margin-top: 10px; padding: 10px 12px; background: #fafafa; border-radius: 8px;
+      font-size: .72rem; line-height: 1.65; color: var(--gray-600);
+    }
+    .l0-pay-preview .l0-line { padding: 3px 0; opacity: .65; }
+    .l0-pay-preview .l0-line.on { opacity: 1; font-weight: 700; color: var(--dp-purple); }
+
+    @media (max-width: 768px) {
+      .proto-body { flex-direction: column; }
+      .proto-nav { width: 100%; display: flex; overflow-x: auto; }
+      .proto-nav .nav-section { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="proto-header">
+  <h1>دیجی‌پی Experience Design — سگمنت ۱</h1>
+  <p>More Code · Trusted · Amount @ Checkout · نمونه مرچنت: دیجیکالا</p>
+  <div class="proto-tags">
+    <span class="proto-tag">More Code — Embed SDK در PDP/PLP/Basket</span>
+    <span class="proto-tag">Trusted — API: balance + debt</span>
+    <span class="proto-tag">مبلغ قطعی در Checkout</span>
+    <span class="proto-tag">تک‌قسطه ≤۵M · سرماه · یک‌کلیک</span>
+    <span class="proto-tag">۴قسطه ۵–۲۰M · ۲۵٪ نقدی</span>
+    <span class="proto-tag">وام &gt;۲۰M · تا ۲۴ ماه</span>
+  </div>
+  <div class="proto-controls">
+    <div class="control-group">
+      <label>سطح کاربر:</label>
+      <div class="level-btns">
+        <button type="button" class="level-btn" data-level="L0">L0 — غیرعضو</button>
+        <button type="button" class="level-btn active" data-level="L1">L1 — اعتبار کافی</button>
+        <button type="button" class="level-btn" data-level="L2">L2 — اعتبار ناکافی</button>
+        <button type="button" class="level-btn" data-level="L3">L3 — بدهکار</button>
+      </div>
+    </div>
+    <div class="control-group" id="payMethodControl" style="display:none">
+      <label>روش پرداخت:</label>
+      <div class="pay-method-btns" id="payMethodBtns">
+        <button type="button" class="pay-method-btn" data-pay-method="all">همه</button>
+        <button type="button" class="pay-method-btn active" data-pay-method="four">۴ قسطه</button>
+        <button type="button" class="pay-method-btn" data-pay-method="single">تک‌قسطه</button>
+        <button type="button" class="pay-method-btn" data-pay-method="loan">وام</button>
+        <button type="button" class="pay-method-btn" data-pay-method="wallet">کیف پول</button>
+      </div>
+    </div>
+    <div class="control-group" id="refundScenarioControl" style="display:none">
+      <label>مقصد بازگشت:</label>
+      <div class="pay-method-btns" id="refundScenarioBtns"></div>
+    </div>
+  </div>
+</header>
+
+<div class="proto-body">
+  <nav class="proto-nav">
+    <div class="nav-section">Before Checkout</div>
+    <button type="button" class="nav-btn active" data-screen="pdp">PDP — صفحه محصول</button>
+    <button type="button" class="nav-btn" data-screen="plp">PLP — لیست محصول</button>
+    <button type="button" class="nav-btn" data-screen="basket">Basket / DTO</button>
+    <div class="nav-section">Checkout</div>
+    <button type="button" class="nav-btn" data-screen="checkout">صفحه پرداخت</button>
+    <div class="nav-section">After Finalize</div>
+    <button type="button" class="nav-btn" data-screen="refund" id="refundNav">ریفاند / مرجوعی</button>
+  </nav>
+
+  <main class="proto-main">
+    <div id="specPanel" class="spec-panel"></div>
+
+    <section id="screen-pdp" class="screen active">
+      <div class="dk-frame">
+        <div class="dk-topbar"><span class="logo">دیجی‌کالا</span> › محصول</div>
+        <div class="dk-content">
+          <div class="pdp-thumb" id="pdp-thumb">تصویر محصول</div>
+          <h2 style="font-size:.92rem;margin-bottom:6px" id="pdp-title">محصول</h2>
+          <div style="font-size:1.05rem;font-weight:700;color:var(--dk-red)" id="pdp-price-display">—</div>
+          <div id="pdp-xp"></div>
+        </div>
+        <div class="dk-cta-bar">
+          <div class="price-block">قیمت<strong id="pdp-cta-price">—</strong></div>
+          <button class="dk-btn primary">افزودن به سبد</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-plp" class="screen">
+      <div class="dk-frame">
+        <div class="dk-topbar"><span class="logo">دیجی‌کالا</span> › لیست</div>
+        <div class="dk-content">
+          <div id="plp-banner"></div>
+          <div class="plp-filter-hint" id="plp-filter-hint"></div>
+          <div class="plp-grid" id="plp-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-basket" class="screen">
+      <div class="dk-frame">
+        <div class="dk-topbar"><span class="logo">دیجی‌کالا</span> › سبد</div>
+        <div class="dk-content">
+          <div class="basket-scenario" id="basket-label"></div>
+          <div id="basket-items"></div>
+          <div id="basket-xp"></div>
+          <div class="basket-summary">
+            <div class="basket-row"><span>جمع</span><span id="basket-sum">—</span></div>
+            <div class="basket-row total"><span>قابل پرداخت</span><span id="basket-total">—</span></div>
+          </div>
+        </div>
+        <div class="dk-cta-bar">
+          <div class="price-block">جمع سبد<strong id="basket-cta">—</strong></div>
+          <button class="dk-btn primary">افزودن به سبد خرید</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-checkout" class="screen">
+      <div class="dk-frame checkout-frame">
+        <div class="co-header">
+          <span class="co-support">🎧</span>
+          <span>پرداخت</span>
+          <span class="co-back">→</span>
+        </div>
+        <div class="dk-content co-content">
+          <div class="co-scenario" id="checkout-label"></div>
+          <div class="co-hint">روش پرداخت خود را انتخاب کنید</div>
+          <div class="pay-list" id="checkout-pay-list"></div>
+          <div id="checkout-wallet-row"></div>
+          <div class="co-coupon">
+            <label>کد تخفیف</label>
+            <div class="co-coupon-row">
+              <input type="text" placeholder="وارد کنید" />
+              <button type="button">ثبت</button>
+            </div>
+          </div>
+          <div class="co-terms">
+            <span class="check">✓</span>
+            <span>با پرداخت، قوانین سایت را می‌پذیرید</span>
+          </div>
+        </div>
+        <div class="co-footer">
+          <button class="dk-btn primary" id="payBtn">پرداخت</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Express — شروع جرنی خرید (اعضا) -->
+    <div id="express-overlay" class="acquire-overlay" aria-hidden="true">
+      <div class="acquire-sheet">
+        <div class="acquire-icon" id="express-icon">۴</div>
+        <h3 id="express-title">شروع خرید</h3>
+        <p id="express-desc">در حال انتقال به جرنی پرداخت دیجی‌پی…</p>
+        <button type="button" class="acquire-btn" id="express-continue">ادامه خرید</button>
+        <button type="button" class="acquire-close" id="express-close">بازگشت</button>
+      </div>
+    </div>
+
+    <!-- ریدایرکت دریافت اعتبار (L0) -->
+    <div id="acquire-overlay" class="acquire-overlay" aria-hidden="true">
+      <div class="acquire-sheet">
+        <div class="acquire-icon">💜</div>
+        <h3 id="acquire-title">دریافت اعتبار دیجی‌پی</h3>
+        <p id="acquire-desc">برای پرداخت با دیجی‌پی، ابتدا اعتبار دریافت کنید — ساده، رایگان و بدون کارمزد</p>
+        <button type="button" class="acquire-btn" id="acquire-continue">ادامه دریافت اعتبار</button>
+        <button type="button" class="acquire-close" id="acquire-close">بازگشت به پرداخت</button>
+      </div>
+    </div>
+
+    <section id="screen-refund" class="screen">
+      <div class="dk-frame">
+        <div class="dk-topbar"><span class="logo">دیجی‌کالا</span> › سفارش</div>
+        <div class="dk-content" id="refund-content"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const USER = {
+  L0: { label: 'غیرعضو', balance: 0, debt: 0, member: false, fourRemaining: 0, loanRemaining: 0 },
+  L1: { label: 'اعتبار کافی', balance: 35000000, debt: 0, member: true, fourRemaining: 50000000, loanRemaining: 500000000 },
+  L2: { label: 'ناکافی', balance: 8000000, debt: 0, member: true, fourRemaining: 30000000, loanRemaining: 200000000 },
+  L3: { label: 'بدهکار', balance: 12000000, debt: 4500000, member: true, blocked: true, fourRemaining: 0, loanRemaining: 0 },
+};
+
+function memberFourRemaining() {
+  return USER[level].fourRemaining ?? 0;
+}
+
+function memberLoanRemaining() {
+  return USER[level].loanRemaining ?? 0;
+}
+
+const CART_SCENARIOS = {
+  low: {
+    amount: 1000000,
+    label: 'سبد ~۱M · پیشنهاد: اعتبار تک‌قسطه',
+    items: [{ label: 'هدفون', title: 'هدفون بی‌سیم ×۱', price: 1000000 }],
+  },
+  mid: {
+    amount: 10000000,
+    label: 'سبد ~۱۰M · پیشنهاد: اعتبار ۴ قسطه',
+    items: [{ label: 'ساعت', title: 'ساعت هوشمند ×۱', price: 10000000 }],
+  },
+  high: {
+    amount: 200000000,
+    label: 'سبد ~۲۰۰M · پیشنهاد: وام',
+    items: [{ label: 'گوشی', title: 'گوشی پرچمدار ×۱', price: 200000000 }],
+  },
+  mixed: {
+    amount: 211000000,
+    label: 'سبد ترکیبی · تک‌قسطه + ۴قسطه + وام',
+    items: [
+      { label: 'هدفون', title: 'هدفون بی‌سیم ×۱', price: 1000000 },
+      { label: 'ساعت', title: 'ساعت هوشمند ×۱', price: 10000000 },
+      { label: 'گوشی', title: 'گوشی پرچمدار ×۱', price: 200000000 },
+    ],
+  },
+};
+
+function getCart() {
+  return CART_SCENARIOS[cartScenario()];
+}
+
+const PLP_ITEMS = [
+  { label: 'هدفون', title: 'هدفون بی‌سیم', price: 1000000 },
+  { label: 'ساعت', title: 'ساعت هوشمند', price: 10000000 },
+  { label: 'گوشی', title: 'گوشی پرچمدار', price: 200000000 },
+  { label: 'شارژر', title: 'شارژر', price: 850000 },
+];
+
+let level = 'L1';
+/** فیلتر واحد «روش پرداخت» — all | single | four | loan | mixed */
+let payMethod = 'four';
+/** ریفاند: مقصد بازگشت — wallet | credit | loan_charge */
+let refundScenario = 'credit';
+
+const PAY_METHOD_CONFIG = {
+  all:    { cart: 'mixed', pdp: 10000000,  plp: 'all',    refund: 'four' },
+  single: { cart: 'low',   pdp: 1000000,   plp: 'single', refund: 'single' },
+  four:   { cart: 'mid',   pdp: 10000000,  plp: 'four',   refund: 'four' },
+  loan:   { cart: 'high',  pdp: 200000000, plp: 'loan',   refund: 'loan' },
+  wallet: { cart: 'low',   pdp: 1000000,   plp: 'wallet', refund: 'wallet' },
+};
+
+function getPayConfig() {
+  return PAY_METHOD_CONFIG[payMethod] || PAY_METHOD_CONFIG.four;
+}
+
+function cartScenario() {
+  return getPayConfig().cart;
+}
+
+function pdpPrice() {
+  return getPayConfig().pdp;
+}
+
+function plpFilterMode() {
+  return getPayConfig().plp;
+}
+
+function refundPayMethod() {
+  const r = getPayConfig().refund;
+  return r === 'all' ? 'four' : r;
+}
+
+function applyPayMethod(method) {
+  payMethod = method;
+  refundScenario = method === 'loan' ? 'loan_charge' : 'credit';
+  syncPayMethodUI();
+}
+
+function syncPayMethodUI() {
+  $$('.pay-method-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.payMethod === payMethod);
+  });
+}
+
+function updatePayMethodControl(screen) {
+  const ctrl = $('#payMethodControl');
+  if (!ctrl) return;
+  const showOn = ['pdp', 'plp', 'basket', 'checkout', 'refund'];
+  ctrl.style.display = showOn.includes(screen) ? 'flex' : 'none';
+  syncPayMethodUI();
+}
+
+/** L2 + فیلتر تک‌قسطه = صفحه عادی بدون آفر دیجی‌پی */
+function isDigiPaySuppressed() {
+  return level === 'L2' && payMethod === 'single';
+}
+
+/** آیا دیجی‌پی روی این سطح/فیلتر اصلاً نمایش داده شود */
+function shouldShowDigiPayExperience() {
+  if (isDigiPaySuppressed()) return false;
+  return true;
+}
+
+/** L0 — دیجی‌کارت + ۱۰٪ کش‌بک */
+function buildL0DigicardExperience(surface) {
+  const foot = surface === 'basket'
+    ? 'با دیجی‌کارت از این سبد خرید کنید — ۱۰٪ کش‌بک دریافت می‌کنید'
+    : 'با دریافت دیجی‌کارت · ۱۰٪ کش‌بک با هر خرید از دیجی‌کارت';
+  return `
+    <div class="xp xp--single" style="background:#e8f5e9;border-color:#a5d6a7">
+      <div class="xp-title">دیجی‌کارت · ۱۰٪ کش‌بک</div>
+      <div class="xp-highlight" style="color:#2e7d32;font-size:1rem;font-weight:700">۱۰٪ کش‌بک با خرید</div>
+      <p class="xp-foot">${foot}</p>
+      <button type="button" class="xp-cta" data-action="acquire-digicard" style="background:#2e7d32">دریافت دیجی‌کارت</button>
+    </div>`;
+}
+
+function walletCashbackShort() {
+  return level === 'L0' ? '۱۰٪ کش‌بک' : '۵٪ کش‌بک';
+}
+
+function buildL3DebtPdpExperience(amount) {
+  const u = USER.L3;
+  const avail = Math.max(0, u.balance - u.debt);
+  return `
+    <div class="xp xp--debt">
+      <div class="xp-title">تسویه بدهی دیجی‌پی</div>
+      <div class="xp-highlight" style="font-size:.9rem">بدهی ${fmt(u.debt)} تومان · اعتبار ${fmt(u.balance)} تومان</div>
+      <p class="xp-foot">برای خرید با دیجی‌پی، ابتدا بدهی را تسویه کنید.${avail > 0 ? ` ${fmt(avail)} تومان اعتبار آزاد می‌شود.` : ''}</p>
+      <button type="button" class="xp-cta" data-action="debt">تسویه بدهی</button>
+    </div>`;
+}
+
+function buildL3BasketDebtExperience(amount) {
+  const u = USER.L3;
+  const avail = Math.max(0, u.balance - u.debt);
+  return `
+    <div class="xp xp--debt">
+      <div class="xp-label">پرداخت اعتباری قفل است</div>
+      <div class="xp-title">سبد ${fmt(amount)} تومان</div>
+      <div class="xp-highlight" style="font-size:.95rem">اعتبار ${fmt(u.balance)} تومان · بدهی ${fmt(u.debt)} تومان</div>
+      <p class="xp-foot">شما ${fmt(u.balance)} اعتبار دارید، اما ${fmt(u.debt)} بدهی مانع استفاده است. با تسویه بدهی، دوباره خرید اعتباری دارید.${avail > 0 ? ` حدود ${fmt(avail)} تومان پس از تسویه آزاد می‌شود.` : ''}</p>
+      <button type="button" class="xp-cta" data-action="debt">تسویه بدهی ${fmt(u.debt)} تومان</button>
+    </div>`;
+}
+
+const fmt = n => (Number(n) || 0).toLocaleString('fa-IR');
+const fmtRial = tomans => fmt((Number(tomans) || 0) * 10);
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+/** قوانین مبلغ: ۱M تک‌قسطه · ۱۰M چهارقسطه · ۲۰۰M وام */
+function recommendForAmount(amount) {
+  if (amount <= 5000000) return 'single';
+  if (amount <= 20000000) return 'four';
+  return 'loan';
+}
+
+/** تک‌قسطه فقط L1 — L2 اصلاً خرید تک‌قسطه ندارد */
+function canUseSinglePay() {
+  return level === 'L1';
+}
+
+/** روش اکسپرینس بر اساس فیلتر «روش پرداخت» + مبلغ */
+function experienceMethodForAmount(amount) {
+  if (level === 'L3') return 'debt';
+  if (!shouldShowDigiPayExperience()) return null;
+  if (level === 'L0') {
+    if (payMethod === 'wallet') return 'wallet';
+    if (payMethod === 'all') return recommendForAmount(amount);
+    return payMethod;
+  }
+  if (payMethod === 'wallet') return 'wallet';
+  if (payMethod === 'all') return effectiveMethodForUser(amount);
+  if (payMethod === 'single') {
+    if (!canUseSinglePay() || amount > USER[level].balance) return null;
+    return 'single';
+  }
+  if (payMethod === 'four') return 'four';
+  if (payMethod === 'loan') return amount > 20000000 ? 'loan' : (level === 'L2' ? 'four' : 'four');
+  return effectiveMethodForUser(amount);
+}
+
+/** روش پیشنهادی per کاربر (نه فقط مبلغ) */
+function effectiveMethodForUser(amount) {
+  const tier = recommendForAmount(amount);
+  if (level === 'L0' || level === 'L3') return tier;
+  if (level === 'L2') {
+    if (tier === 'single') return 'four';
+    return tier;
+  }
+  if (level === 'L1') {
+    if (tier === 'single' && USER.L1.balance >= amount) return 'single';
+    if (tier === 'single') return 'four';
+    return tier;
+  }
+  return tier;
+}
+
+function normalizeExperienceMethod(method, amount) {
+  if (method === 'single' && !canUseSinglePay()) {
+    return amount <= 20000000 ? 'four' : 'loan';
+  }
+  if (method === 'single' && level === 'L1' && USER.L1.balance < amount) {
+    return amount <= 20000000 ? 'four' : 'loan';
+  }
+  return method;
+}
+
+function fourCalc(amount) {
+  const cash = Math.ceil(amount * 0.25);
+  return { cash, monthly: Math.ceil((amount - cash) / 4) };
+}
+
+function loanCalc(amount) {
+  return { m24: Math.ceil(amount / 24) };
+}
+
+/** خلاصه ۴قسطه — یک خط */
+function fourInstallmentSummary(amount) {
+  const f = fourCalc(amount);
+  return `همین الان <strong>${fmt(f.cash)}</strong> تومان · هر قسط <strong>${fmt(f.monthly)}</strong> تومان`;
+}
+
+const FOUR_SCHEDULE_DATES = ['امروز', '۱ اردیبهشت', '۱ خرداد', '۱ تیر'];
+const FOUR_SCHEDULE_LABELS = ['قسط اول', 'قسط دوم', 'قسط سوم', 'قسط چهارم'];
+
+function fourScheduleRows(amount) {
+  const f = fourCalc(amount);
+  return [
+    { label: FOUR_SCHEDULE_LABELS[0], date: FOUR_SCHEDULE_DATES[0], amount: f.cash, fill: 1 },
+    { label: FOUR_SCHEDULE_LABELS[1], date: FOUR_SCHEDULE_DATES[1], amount: f.monthly, fill: 2 },
+    { label: FOUR_SCHEDULE_LABELS[2], date: FOUR_SCHEDULE_DATES[2], amount: f.monthly, fill: 3 },
+    { label: FOUR_SCHEDULE_LABELS[3], date: FOUR_SCHEDULE_DATES[3], amount: f.monthly, fill: 4 },
+  ];
+}
+
+/** ویجت ۴قسطه — مدل Express (تایم‌لاین) */
+function installmentWidgetExpress(amount) {
+  const rows = fourScheduleRows(amount);
+  return `
+    <div class="pay-card-widget pay-card-widget--four" data-widget="four-express">
+      <div class="inst-panel">
+        <div class="inst-timeline">
+          ${rows.map(r => `
+            <div class="inst-row">
+              <span class="inst-pie" style="--fill:${r.fill}"></span>
+              <div class="inst-row-meta">
+                <div class="inst-row-label">${r.label} — ${r.date}</div>
+              </div>
+              <div class="inst-row-amt">${fmt(r.amount)} تومان</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="inst-note">بدون سود و کارمزد</div>
+    </div>`;
+}
+
+/** بلوک یکپارچه پروموت ۴قسطه — همه سطوح */
+function fourExperienceBlock(amount, opts = {}) {
+  const {
+    label = '',
+    title = '۴ قسط · بدون کارمزد',
+    foot = 'بدون سود و کارمزد',
+    cta = 'خرید در ۴ قسط',
+    action = '',
+    badge = '',
+  } = opts;
+  return `
+    <div class="xp xp--four">
+      ${label ? `<div class="xp-label">${label}</div>` : ''}
+      <div class="xp-title">${title}</div>
+      ${badge}
+      <p class="xp-four-summary">${fourInstallmentSummary(amount)}</p>
+      ${foot ? `<p class="xp-foot">${foot}</p>` : ''}
+      <button type="button" class="xp-cta"${action ? ` data-action="${action}"` : ''}>${cta}</button>
+    </div>`;
+}
+
+/**
+ * یک اکسپرینس — نه لیست
+ * @param {'pdp'|'basket'|'checkout'|'plp-micro'} surface
+ */
+function buildWalletExperience(amount, surface) {
+  if (level === 'L0') return buildL0DigicardExperience(surface || 'pdp');
+  const u = USER[level];
+  const cb = walletCashbackShort();
+  return `
+    <div class="xp xp--single" style="background:#e8f5e9;border-color:#a5d6a7">
+      <div class="xp-title">خرید با کیف پول دیجی‌پی</div>
+      <div class="xp-highlight" style="color:#2e7d32;font-size:1rem;font-weight:700">${cb} · موجودی ${fmt(u.balance)} تومان</div>
+      <p class="xp-foot">${cb} روی خرید با کیف پول</p>
+      <button type="button" class="xp-cta" data-action="express-wallet" style="background:#2e7d32">خرید با کیف پول</button>
+    </div>`;
+}
+
+function buildExperience(method, amount, surface) {
+  if (!method) return '';
+  if (method === 'wallet') return buildWalletExperience(amount, surface);
+  const isL0 = level === 'L0';
+  if (isL0 && payMethod !== 'all' && payMethod !== 'wallet') {
+    method = payMethod;
+  } else {
+    method = normalizeExperienceMethod(method, amount);
+  }
+  const u = USER[level];
+  const blocked = level === 'L3';
+  const p = {
+    single: { name: 'اعتبار تک‌قسطه', icon: '⚡' },
+    four:   { name: 'اعتبار ۴ قسطه', icon: '۴' },
+    loan:   { name: 'وام دیجی‌پی', icon: '🏦' },
+  }[method];
+
+  if (blocked) {
+    const avail = Math.max(0, u.balance - u.debt);
+    return `
+      <div class="xp xp--debt">
+        <div class="xp-title">اعتبار ${fmt(u.balance)} · بدهی ${fmt(u.debt)}</div>
+        <p class="xp-foot">برای استفاده از اعتبارتان، ابتدا بدهی را تسویه کنید. پس از تسویه، ${avail > 0 ? `حدود ${fmt(avail)} تومان` : 'اعتبار'} برای خرید آزاد می‌شود.</p>
+        <button type="button" class="xp-cta" data-action="debt">تسویه بدهی</button>
+      </div>`;
+  }
+
+  if (method === 'single') {
+    if (isL0) {
+      return `
+        <div class="xp xp--single">
+          <div class="xp-head"><span class="xp-icon">${p.icon}</span><span class="xp-title">بخرید، آخر ماه پرداخت کنید</span></div>
+          <div class="xp-highlight">${fmt(amount)} تومان</div>
+          <p class="xp-foot">بخرید، آخر ماه پرداخت کنید — رایگان و بدون کارمزد</p>
+          <button type="button" class="xp-cta" data-action="acquire-single">دریافت اعتبار تک‌قسطه</button>
+        </div>`;
+    }
+    if (canUseSinglePay() && u.balance >= amount) {
+      return `
+        <div class="xp xp--ready">
+          <div class="xp-title">همین الان بخرید</div>
+          <div class="xp-highlight" style="color:#2e7d32;font-size:1rem;font-weight:700">${fmt(amount)} تومان · پرداخت سر ماه</div>
+          <p class="xp-foot">با یک کلیک خریدتان تمام می‌شود</p>
+          <button type="button" class="xp-cta" data-action="express-single">خرید با یک کلیک</button>
+        </div>`;
+    }
+    return buildExperience(amount <= 20000000 ? 'four' : 'loan', amount, surface);
+  }
+
+  if (method === 'four') {
+    if (isL0) {
+      return fourExperienceBlock(amount, {
+        label: 'پیشنهاد برای این مبلغ',
+        title: 'خرید در ۴ قسط',
+        foot: 'دریافت اعتبار ۴ قسطه — ساده و رایگان',
+        cta: 'دریافت اعتبار ۴ قسطه',
+        action: 'acquire-four',
+      });
+    }
+    return fourExperienceBlock(amount, {
+      label: 'پیشنهاد دیجی‌پی',
+      cta: 'خرید با اعتبار ۴ قسطه',
+      action: 'express-four',
+    });
+  }
+
+  if (method === 'loan') {
+    const l = loanCalc(amount);
+    if (isL0) {
+      return `
+        <div class="xp xp--loan">
+          <div class="xp-label">پیشنهاد برای این خرید</div>
+          <div class="xp-title">اقساط تا ۲۴ ماه</div>
+          <div class="xp-big">از ${fmt(l.m24)} <small>تومان در ماه</small></div>
+          <p class="xp-foot" style="opacity:.9">دریافت وام — ساده و رایگان</p>
+          <button type="button" class="xp-cta" data-action="acquire-loan">دریافت وام</button>
+        </div>`;
+    }
+    return `
+      <div class="xp xp--loan">
+        <div class="xp-label">پیشنهاد دیجی‌پی</div>
+        <div class="xp-title">پرداخت در اقساط بلندمدت</div>
+        <div class="xp-big">از ${fmt(l.m24)} <small>تومان در ماه</small></div>
+        <p class="xp-foot" style="opacity:.9">تا ۲۴ ماه · مناسب خریدهای بزرگ</p>
+        <button type="button" class="xp-cta" data-action="express-loan">خرید با وام</button>
+      </div>`;
+  }
+  return '';
+}
+
+/** میکرو PLP — per فیلتر و per قیمت کالا */
+function plpMicroForItem(amount, filter) {
+  if (level === 'L3') return { text: '', cls: '', hidden: true };
+  if (isDigiPaySuppressed()) return { text: '', cls: '', hidden: true };
+
+  const u = USER[level];
+  const isL0 = level === 'L0';
+
+  if (filter === 'wallet') {
+    if (isL0) return { text: 'دیجی‌کارت · ۱۰٪ کش‌بک', cls: 'm-wallet' };
+    return { text: '۵٪ کش‌بک با کیف پول', cls: 'm-wallet' };
+  }
+
+  if (filter === 'all') {
+    const method = isL0 ? recommendForAmount(amount) : effectiveMethodForUser(amount);
+    return plpMicroByMethod(amount, method, isL0);
+  }
+
+  if (filter === 'single') {
+    if (isL0) {
+      return { text: 'دریافت اعتبار تک‌قسطه', cls: 'm-single' };
+    }
+    if (!canUseSinglePay() || amount > u.balance) {
+      return { text: '', cls: '', hidden: true };
+    }
+    return { text: 'پرداخت سر ماه · با یک کلیک', cls: 'm-single' };
+  }
+
+  if (filter === 'four') {
+    const f = fourCalc(amount);
+    if (isL0) return { text: `۴ قسط · همین الان ${fmt(f.cash)} · هر قسط ${fmt(f.monthly)}`, cls: 'm-four' };
+    return { text: `۴ قسط · همین الان ${fmt(f.cash)} · هر قسط ${fmt(f.monthly)}`, cls: 'm-four' };
+  }
+
+  if (filter === 'loan') {
+    if (amount <= 20000000) return { text: '', cls: '', hidden: true };
+    const l = loanCalc(amount);
+    if (isL0) return { text: `وام · از ${fmt(l.m24)} تومان/ماه`, cls: 'm-loan' };
+    return { text: `خرید با وام · از ${fmt(l.m24)} تومان/ماه`, cls: 'm-loan' };
+  }
+
+  return { text: '', cls: '', hidden: true };
+}
+
+function plpMicroByMethod(amount, method, isL0) {
+  if (method === 'single') {
+    if (isL0) return { text: 'دریافت اعتبار تک‌قسطه', cls: 'm-single' };
+    return { text: 'پرداخت سر ماه · با یک کلیک', cls: 'm-single' };
+  }
+  if (method === 'four') {
+    const f = fourCalc(amount);
+    if (isL0) return { text: 'دریافت اعتبار ۴ قسطه', cls: 'm-four' };
+    return { text: `۴ قسط · همین الان ${fmt(f.cash)} · هر قسط ${fmt(f.monthly)}`, cls: 'm-four' };
+  }
+  const l = loanCalc(amount);
+  if (isL0) return { text: 'دریافت وام دیجی‌پی', cls: 'm-loan' };
+  return { text: `خرید با وام · از ${fmt(l.m24)} تومان/ماه`, cls: 'm-loan' };
+}
+
+// ── Spec ──
+const SPECS = {
+  pdp: {
+    title: 'PDP — Before Checkout',
+    needs: ['وضعیت اعتبار', 'ترغیب خرید', 'دریافت اعتبار (L0)', 'تسویه بدهی (L3)'],
+    rule: 'L0 تک‌قسطه: دریافت اعتبار تک‌قسطه · L0 کیف‌پول: دیجی‌کارت ۱۰٪ · L3: تسویه بدهی',
+    api: 'GET credit-inquiry → balance, debt',
+  },
+  plp: {
+    title: 'PLP — Before Checkout',
+    needs: ['فیلتر روش پرداخت', 'میکرو per فیلتر', 'بنر اعتبار/بدهی', 'L3 بدون پروموت کالا'],
+    rule: '۵ فیلتر: همه/تک‌قسطه/۴قسطه/وام/کیف‌پول · L2+تک‌قسطه = صفحه عادی',
+    api: 'inquiry + payment-method filter',
+  },
+  basket: {
+    title: 'Basket / DTO — Before Checkout',
+    needs: ['۴ سناریو سبد (+ ترکیبی)', 'Express برای اعضا', 'دکمه: افزودن به سبد خرید'],
+    rule: 'بدون میکرو per آیتم · یک پیشنهاد پایین بر اساس جمع سبد · ترکیبی = وام',
+    api: 'inquiry + cart.amount',
+  },
+  checkout: {
+    title: 'Checkout — صفحه پرداخت مرچنت (More Code)',
+    needs: ['ویجت ۴قسطه Express', 'بدون هشدار ناکافی در ۴قسطه', 'جرنی Express L1+', 'کیف پول L1/L2'],
+    rule: 'دکمه همیشه پرداخت · L3 کلیک دیجی‌پی → جرنی تسویه بدهی',
+    api: 'gateway/status + payment/methods + credit-inquiry',
+  },
+  refund: {
+    title: 'After Finalize — Refund',
+    needs: level === 'L0' ? ['غیرفعال برای L0'] : ['مرجوع کامل/جزئی'],
+    rule: 'مقصد بازگشت: کیف پول نقدی · اعتبار · شارژ وام (بدون سناریو سررسید)',
+    api: level === 'L0' ? '—' : 'POST refund.initiate',
+  },
+};
+
+function renderSpec(screen) {
+  const s = SPECS[screen] || SPECS.pdp;
+  $('#specPanel').innerHTML = `
+    <strong>${s.title}</strong> · ${USER[level].label}<br>
+    <em>${s.needs.map(n => '✓ ' + n).join(' · ')}</em><br>
+    <em>${s.rule}</em><br>
+    <span class="api">${s.api}</span>`;
+}
+
+function renderPDP() {
+  const amount = pdpPrice();
+  const title = amount >= 50000000 ? 'گوشی پرچمدار' : amount <= 2000000 ? 'هدفون بی‌سیم' : 'کالا';
+  $('#pdp-title').textContent = title;
+  $('#pdp-thumb').textContent = title;
+  $('#pdp-price-display').innerHTML = `${fmt(amount)} <span style="font-size:.75rem;font-weight:400">تومان</span>`;
+  $('#pdp-cta-price').textContent = `${fmt(amount)} تومان`;
+  const pdpXp = $('#pdp-xp');
+  let html = '';
+  if (level === 'L3') {
+    html = buildL3DebtPdpExperience(amount);
+  } else if (level === 'L0' && payMethod === 'wallet') {
+    html = buildL0DigicardExperience('pdp');
+  } else if (level === 'L0') {
+    const m = payMethod === 'all' ? recommendForAmount(amount) : payMethod;
+    html = buildExperience(m, amount, 'pdp');
+  } else {
+    const method = experienceMethodForAmount(amount);
+    html = method === 'debt' ? buildL3DebtPdpExperience(amount) : (method ? buildExperience(method, amount, 'pdp') : '');
+  }
+  pdpXp.innerHTML = html;
+  bindXpCta(pdpXp, () => pdpPrice());
+}
+
+function buildPlpBanner() {
+  const u = USER[level];
+  if (isDigiPaySuppressed()) return '';
+  if (level === 'L0') {
+    if (plpFilterMode() === 'loan') {
+      return `<div class="plp-banner" style="background:#fff3e0;border-color:#ffcc80">
+        <strong>دریافت وام دیجی‌پی</strong>اقساط تا ۲۴ ماه — برای خریدهای بزرگ
+      </div>`;
+    }
+    if (plpFilterMode() === 'wallet') {
+      return `<div class="plp-banner" style="background:#e8f5e9;border-color:#a5d6a7">
+        <strong>دریافت دیجی‌کارت · ۱۰٪ کش‌بک</strong>با دریافت دیجی‌کارت، ۱۰٪ کش‌بک با خرید از دیجی‌کارت بگیرید
+      </div>`;
+    }
+    if (plpFilterMode() === 'single') {
+      return `<div class="plp-banner" style="background:var(--dp-purple-light);border-color:#d8ccf0">
+        <strong>دریافت اعتبار تک‌قسطه دیجی‌پی</strong>بخرید، آخر ماه پرداخت کنید — رایگان و بدون کارمزد
+      </div>`;
+    }
+    if (plpFilterMode() === 'four') {
+      return `<div class="plp-banner" style="background:#e3f2fd;border-color:#90caf9">
+        <strong>دریافت اعتبار ۴ قسطه</strong>خرید بدون سود و کارمزد
+      </div>`;
+    }
+    return `<div class="plp-banner"><strong>خرید با دیجی‌پی</strong>فیلتر «همه»: دریافت اعتبار / وام / دیجی‌کارت بر اساس مبلغ کالا</div>`;
+  }
+  if (level === 'L3') {
+    const avail = Math.max(0, u.balance - u.debt);
+    return `<div class="plp-banner" style="background:#ffebee;border-color:#ffcdd2;color:#b71c1c">
+      <strong>اعتبار ${fmt(u.balance)} تومان · بدهی ${fmt(u.debt)} تومان</strong>
+      برای استفاده از اعتبار، ابتدا بدهی را تسویه کنید.${avail > 0 ? ` پس از تسویه، حدود ${fmt(avail)} تومان برای خرید آزاد می‌شود.` : ''}
+      <button type="button" class="xp-cta" data-action="debt" style="margin-top:10px;background:var(--dk-red)">تسویه بدهی</button>
+    </div>`;
+  }
+
+  if (plpFilterMode() === 'single') {
+    return `<div class="plp-banner" style="background:var(--dp-purple-light);border-color:#d8ccf0">
+      <strong>اعتبار تک‌قسطه دیجی‌پی: ${fmtRial(u.balance)} ریال</strong>
+      ${canUseSinglePay() ? 'روی کالاهایی که مبلغشان ≤ اعتبار است: پرداخت سر ماه · با یک کلیک' : 'اعتبار تک‌قسطه برای خرید یک‌کلیکی کافی نیست — از ۴قسطه یا وام استفاده کنید'}
+    </div>`;
+  }
+  if (plpFilterMode() === 'four') {
+    return `<div class="plp-banner" style="background:#e3f2fd;border-color:#90caf9">
+      <strong>اعتبار ۴ قسطه — مانده ${fmt(memberFourRemaining())} تومان</strong>
+      خرید بدون سود و کارمزد — ۲۵٪ نقدی + ۴ قسط ماهانه
+    </div>`;
+  }
+  if (plpFilterMode() === 'loan') {
+    return `<div class="plp-banner" style="background:#fff3e0;border-color:#ffcc80">
+      <strong>وام دیجی‌پی — مانده ${fmt(memberLoanRemaining())} تومان</strong>
+      پروموت وام روی کالاهای بالای ۲۰ میلیون تومان · اقساط تا ۲۴ ماه
+    </div>`;
+  }
+  if (plpFilterMode() === 'wallet') {
+    return `<div class="plp-banner" style="background:#e8f5e9;border-color:#a5d6a7">
+      <strong>کیف پول دیجی‌پی — موجودی ${fmt(u.balance)} تومان</strong>۵٪ کش‌بک روی خرید با کیف پول
+    </div>`;
+  }
+  const walletNote = (level === 'L1' || level === 'L2' || level === 'L3') ? ' · کیف پول (۵٪ کش‌بک)' : '';
+  const singleLine = canUseSinglePay()
+    ? `اعتبار تک‌قسطه: ${fmtRial(u.balance)} ریال`
+    : `اعتبار تک‌قسطه: ${fmtRial(u.balance)} ریال (ناکافی برای یک‌کلیک)`;
+  return `<div class="plp-banner">
+    <strong>${singleLine} · ۴ قسطه · وام${walletNote}</strong>
+    پروموت هر کالا بر اساس مبلغ: تک‌قسطه (≤۵M) · ۴قسطه (۵–۲۰M) · وام (&gt;۲۰M)
+  </div>`;
+}
+
+function renderPLP() {
+  const hint = $('#plp-filter-hint');
+  if (isDigiPaySuppressed()) {
+    if (hint) hint.textContent = 'L2 + تک‌قسطه: اعتبار ناکافی — صفحه عادی بدون آفر دیجی‌پی.';
+    $('#plp-banner').innerHTML = '';
+    $('#plp-grid').innerHTML = PLP_ITEMS.map(item => `
+      <div class="plp-item">
+        <div class="thumb">${item.label}</div>
+        <div class="title">${item.title}</div>
+        <div class="price">${fmt(item.price)} تومان</div>
+      </div>`).join('');
+    return;
+  }
+  if (level === 'L3') {
+    if (hint) hint.textContent = 'کاربر بدهکار — پروموت اعتباری روی کالاها نمایش داده نمی‌شود.';
+  } else {
+    const labels = { all: 'همه', single: 'تک‌قسطه', four: '۴ قسطه', loan: 'وام', wallet: 'کیف پول' };
+    const mode = plpFilterMode();
+    if (hint) {
+      hint.textContent = mode === 'all'
+        ? 'روش پرداخت «همه»: هر کالا پروموت روش مناسب مبلغش — تک‌قسطه فقط L1 و قیمت ≤ اعتبار.'
+        : `روش پرداخت «${labels[mode]}»: بنر و میکرو کالاها برای همین روش.`;
+    }
+  }
+
+  $('#plp-banner').innerHTML = buildPlpBanner();
+
+  $('#plp-grid').innerHTML = PLP_ITEMS.map(item => {
+    const micro = plpMicroForItem(item.price, plpFilterMode());
+    const microHtml = micro.hidden
+      ? ''
+      : `<div class="plp-micro ${micro.cls}">${micro.text}</div>`;
+    return `
+      <div class="plp-item">
+        <div class="thumb">${item.label}</div>
+        <div class="title">${item.title}</div>
+        <div class="price">${fmt(item.price)} تومان</div>
+        ${microHtml}
+      </div>`;
+  }).join('');
+
+  bindXpCta($('#plp-banner'), () => 0);
+}
+
+/**
+ * اکسپرینس سبد — per مبلغ + per سطح کاربر
+ */
+function basketExperienceMethod(amount) {
+  if (isDigiPaySuppressed()) return null;
+  if (level === 'L0' && payMethod === 'wallet') return 'wallet';
+  if (level === 'L0' && payMethod !== 'all') return payMethod;
+  return experienceMethodForAmount(amount);
+}
+
+function buildBasketExperience(amount, method) {
+  if (!method) return '';
+  if (method === 'wallet') return buildWalletExperience(amount, 'basket');
+  const isL0 = level === 'L0';
+  if (isL0 && payMethod !== 'all' && payMethod !== 'wallet') {
+    method = payMethod;
+  } else {
+    method = normalizeExperienceMethod(method, amount);
+  }
+  const u = USER[level];
+  const blocked = level === 'L3';
+  const p = {
+    single: { name: 'اعتبار تک‌قسطه', icon: '⚡' },
+    four:   { name: 'اعتبار ۴ قسطه', icon: '۴' },
+    loan:   { name: 'وام دیجی‌پی', icon: '🏦' },
+  }[method];
+  const l = loanCalc(amount);
+
+  if (blocked) {
+    return buildL3BasketDebtExperience(amount);
+  }
+
+  if (method === 'single') {
+    if (isL0) {
+      return `
+        <div class="xp xp--single">
+          <div class="xp-head"><span class="xp-icon">${p.icon}</span><span class="xp-title">سبد ${fmt(amount)} — پرداخت سر ماه</span></div>
+          <p class="xp-foot">بخرید، آخر ماه پرداخت کنید — رایگان و بدون کارمزد</p>
+          <button type="button" class="xp-cta" data-action="acquire-single">دریافت اعتبار تک‌قسطه</button>
+        </div>`;
+    }
+    if (canUseSinglePay() && u.balance >= amount) {
+      return `
+        <div class="xp xp--ready">
+          <div class="xp-title">پرداخت سبد با یک کلیک</div>
+          <div class="xp-highlight" style="color:#2e7d32;font-size:1rem;font-weight:700">${fmt(amount)} تومان · سر ماه</div>
+          <p class="xp-foot">اعتبار باقی‌مانده: ${fmt(u.balance - amount)} تومان</p>
+          <button type="button" class="xp-cta" data-action="express-single">خرید سبد با یک کلیک</button>
+        </div>`;
+    }
+    return buildBasketExperience(amount, amount <= 20000000 ? 'four' : 'loan');
+  }
+
+  if (method === 'four') {
+    if (isL0) {
+      return fourExperienceBlock(amount, {
+        label: `پیشنهاد برای سبد ${fmt(amount)} تومان`,
+        title: 'خرید در ۴ قسط',
+        foot: 'بدون سود و کارمزد',
+        cta: 'دریافت اعتبار ۴ قسطه',
+        action: 'acquire-four',
+      });
+    }
+    return fourExperienceBlock(amount, {
+      label: 'پیشنهاد دیجی‌پی برای سبد شما',
+      cta: 'خرید سبد با اعتبار ۴ قسطه',
+      action: 'express-four',
+    });
+  }
+
+  if (method === 'loan') {
+    if (isL0) {
+      return `
+        <div class="xp xp--loan">
+          <div class="xp-label">سبد ${fmt(amount)} تومان</div>
+          <div class="xp-title">اقساط تا ۲۴ ماه</div>
+          <div class="xp-big">از ${fmt(l.m24)} <small>تومان/ماه</small></div>
+          <p class="xp-foot">دریافت وام دیجی‌پی — ساده و رایگان</p>
+          <button type="button" class="xp-cta" data-action="acquire-loan">دریافت وام</button>
+        </div>`;
+    }
+    return `
+      <div class="xp xp--loan">
+        <div class="xp-label">پیشنهاد برای سبد بزرگ</div>
+        <div class="xp-title">وام · تا ۲۴ ماه</div>
+        <div class="xp-big">از ${fmt(l.m24)} <small>تومان/ماه</small></div>
+        <p class="xp-foot" style="opacity:.9">۶ / ۱۲ / ۲۴ ماه · مناسب سبدهای بزرگ</p>
+        <button type="button" class="xp-cta" data-action="express-loan">خرید سبد با وام</button>
+      </div>`;
+  }
+  return '';
+}
+
+function renderBasket() {
+  const cart = getCart();
+  const amount = cart.amount;
+
+  $('#basket-label').textContent = cart.label;
+
+  $('#basket-items').innerHTML = cart.items.map(i => `
+    <div class="product-card">
+      <div class="product-thumb">${i.label}</div>
+      <div>
+        <div class="title">${i.title}</div>
+        <div class="price">${fmt(i.price)} تومان</div>
+      </div>
+    </div>`).join('');
+
+  $('#basket-sum').textContent = fmt(amount);
+  $('#basket-total').textContent = fmt(amount) + ' تومان';
+  $('#basket-cta').textContent = fmt(amount) + ' تومان';
+  const basketXp = $('#basket-xp');
+  const basketMethod = basketExperienceMethod(amount);
+  basketXp.innerHTML = basketMethod ? buildBasketExperience(amount, basketMethod) : '';
+  bindXpCta(basketXp, () => getCart().amount);
+}
+
+function bindXpCta(container, getAmount) {
+  if (!container) return;
+  container.onclick = e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    if (action === 'debt') {
+      alert('رفتن به فلو تسویه بدهی (شبیه‌سازی)');
+      return;
+    }
+    if (action === 'acquire-digicard' || action === 'acquire-wallet') {
+      openAcquireFlow('digicard');
+      return;
+    }
+    if (action === 'acquire-single') {
+      openAcquireFlow('single');
+      return;
+    }
+    if (level === 'L0' && action.startsWith('acquire')) {
+      openAcquireFlow(action.replace('acquire-', '') || recommendForAmount(getAmount()));
+      return;
+    }
+    if (action.startsWith('express-')) {
+      const ex = action.replace('express-', '');
+      if (ex === 'wallet') {
+        alert('تأیید پرداخت — در صورت نیاز هدایت به درگاه شارژ کیف پول (شبیه‌سازی)');
+        return;
+      }
+      openExpressFlow(ex);
+      return;
+    }
+    if (action === 'pay') {
+      openExpressFlow(recommendForAmount(getAmount()));
+    }
+  };
+}
+
+
+function singleWidget(amount) {
+  return `
+    <div class="pay-card-widget" data-widget="single-express">
+      <div class="w-single-line">
+        <span>پرداخت سر ماه</span>
+        <strong>${fmt(amount)} تومان</strong>
+      </div>
+      <div class="inst-note" style="margin-top:8px">با یک کلیک خریدتان تمام می‌شود</div>
+    </div>`;
+}
+
+function loanWidget(amount, compact) {
+  const monthly = 2000000;
+  if (compact) {
+    return `
+      <div class="pay-card-widget" data-widget="loan-express">
+        <div class="w-single-line">
+          <span>وام دیجی‌پی</span>
+          <strong>۱۲ قسط ${fmt(monthly)} تومانی</strong>
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="pay-card-widget" data-widget="loan-express">
+      <div class="w-single-line">
+        <span>پرداخت در ۱۲ قسط</span>
+        <strong>هر قسط ${fmt(monthly)} تومان</strong>
+      </div>
+    </div>`;
+}
+
+function walletPayCard(u, amount, selected) {
+  const needTopUp = u.balance < amount;
+  const gap = amount - u.balance;
+  return `
+    <div class="pay-card pay-card-compact ${selected ? 'selected' : ''}" data-pay="wallet">
+      <div class="pay-card-head">
+        <input type="radio" name="merchant-pay" ${selected ? 'checked' : ''} />
+        <div class="pay-card-icon wallet">💳</div>
+        <div class="pay-card-body">
+          <div class="pay-card-title">خرید با کیف پول دیجی‌پی</div>
+          <div class="pay-card-promo">${walletCashbackShort()} · موجودی: ${fmt(u.balance)} تومان</div>
+          ${needTopUp ? `<div class="pay-card-sub" style="color:#e65100;margin-top:4px">نیاز به افزایش موجودی: ${fmt(gap)} تومان</div>` : ''}
+        </div>
+      </div>
+      ${needTopUp
+        ? `<div class="pay-card-ext">پس از تأیید پرداخت، برای شارژ کیف پول به درگاه هدایت می‌شوید</div>`
+        : `<div class="pay-card-ext">${walletCashbackShort()} روی خرید با کیف پول</div>`}
+    </div>`;
+}
+
+function l0CheckoutAcquireLine(method) {
+  const lines = {
+    single: 'برای پرداخت، ابتدا اعتبار تک‌قسطه دریافت کنید',
+    four: 'برای پرداخت، ابتدا اعتبار ۴ قسطه دریافت کنید',
+    loan: 'برای پرداخت، ابتدا وام دیجی‌پی دریافت کنید',
+    wallet: 'برای پرداخت، دیجی‌کارت دریافت کنید — ۱۰٪ کش‌بک',
+  };
+  return lines[method] || lines.four;
+}
+
+/** L0 — پرومو کارت چک‌اوت */
+function l0PromoLine(method, amount) {
+  return l0CheckoutAcquireLine(method);
+}
+
+function simplePayCard({ title, iconClass, iconText, promo, selected, disabled, payId }) {
+  return `
+    <div class="pay-card pay-card-compact ${selected ? 'selected' : ''} ${disabled ? 'disabled' : ''}" data-pay="${payId || 'other'}">
+      <div class="pay-card-head">
+        <input type="radio" name="merchant-pay" ${selected ? 'checked' : ''} ${disabled ? 'disabled' : ''} />
+        <div class="pay-card-icon ${iconClass || ''}">${iconText || ''}</div>
+        <div class="pay-card-body">
+          <div class="pay-card-title">${title}</div>
+          ${promo ? `<div class="pay-card-promo">${promo}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function l0CheckoutPreviewLines(active) {
+  const lines = [
+    { id: 'single', text: '⚡ پرداخت سر ماه · بدون کارمزد' },
+    { id: 'four', text: '۴ قسط — پرداخت در ۴ قسط · بدون کارمزد' },
+    { id: 'loan', text: '🏦 پرداخت در ۱۲ قسط' },
+  ];
+  return `<div class="l0-pay-preview">${lines.map(l =>
+    `<div class="l0-line${l.id === active ? ' on' : ''}">${l.text}</div>`
+  ).join('')}</div>`;
+}
+
+function buildDigiPayCard(amount, method, isL0, u) {
+  // ── L0: کارت جمع‌شده — دریافت اعتبار/وام/دیجی‌کارت ──
+  if (isL0) {
+    const coMethod = payMethod === 'all' ? method : payMethod;
+    const m = coMethod === 'wallet' ? 'wallet' : coMethod;
+    const acquireNames = {
+      single: 'اعتبار تک‌قسطه',
+      four: 'اعتبار ۴ قسطه',
+      loan: 'وام دیجی‌پی',
+      wallet: 'دیجی‌کارت',
+    };
+    return `
+      <div class="pay-card selected" data-pay="digipay" data-l0-acquire="${m}">
+        <div class="pay-card-head">
+          <input type="radio" name="merchant-pay" checked />
+          <div class="pay-card-icon dp">DP</div>
+          <div class="pay-card-body">
+            <div class="pay-card-title">خرید با دیجی‌پی</div>
+            <div class="pay-card-promo">${l0CheckoutAcquireLine(m)}</div>
+          </div>
+        </div>
+        ${m !== 'wallet' ? l0CheckoutPreviewLines(m) : ''}
+        <div class="pay-card-ext">برای استفاده، ابتدا ${acquireNames[m] || 'اعتبار'} را دریافت کنید — سپس پرداخت را تکمیل کنید</div>
+      </div>`;
+  }
+
+  let title = 'خرید با دیجی‌پی';
+  let promo = '';
+  let widget = '';
+  const showLowBalance = method === 'single' && canUseSinglePay() && u.balance < amount;
+
+  if (method === 'single') {
+    title = 'اعتبار ماهانه دیجی‌پی';
+    promo = 'پرداخت سر ماه · بدون کارمزد';
+    widget = singleWidget(amount);
+  } else if (method === 'four') {
+    title = 'دیجی‌پی پرداخت در ۴ قسط';
+    promo = '';
+    widget = installmentWidgetExpress(amount);
+  } else {
+    title = 'وام دیجی‌پی';
+    promo = `اقساط تا ۲۴ ماه · از ${fmt(loanCalc(amount).m24)} تومان/ماه`;
+    widget = loanWidget(amount, true);
+  }
+
+  const balanceHtml = `<div class="pay-card-balance${showLowBalance ? ' low' : ''}">موجودی: ${fmt(u.balance)} تومان${showLowBalance ? ' · برای تک‌قسطه این سبد کافی نیست' : ''}</div>`;
+  const titleClass = method === 'four' ? ' pay-card-title--four' : '';
+
+  return `
+    <div class="pay-card selected" data-pay="digipay" data-dp-method="${method}">
+      <div class="pay-card-head">
+        <input type="radio" name="merchant-pay" checked />
+        <div class="pay-card-icon dp">DP</div>
+        <div class="pay-card-body">
+          <div class="pay-card-title${titleClass}">${title}</div>
+          ${promo ? `<div class="pay-card-promo">${promo}</div>` : ''}
+          ${balanceHtml}
+        </div>
+      </div>
+      ${widget}
+    </div>`;
+}
+
+function competitorCards() {
+  return `
+    <div class="pay-card pay-card-compact" data-pay="snapp">
+      <div class="pay-card-head">
+        <input type="radio" name="merchant-pay" />
+        <div class="pay-card-icon" style="background:#00d4aa;color:#fff;font-size:.6rem">Snapp</div>
+        <div class="pay-card-body"><div class="pay-card-title">اسنپ‌پی</div></div>
+      </div>
+    </div>
+    <div class="pay-card pay-card-compact" data-pay="tara">
+      <div class="pay-card-head">
+        <input type="radio" name="merchant-pay" />
+        <div class="pay-card-icon" style="background:#7b1fa2;color:#fff;font-size:.6rem">Tara</div>
+        <div class="pay-card-body"><div class="pay-card-title">تارا</div></div>
+      </div>
+    </div>`;
+}
+
+function walletRow(u) {
+  return `
+    <div class="wallet-row">
+      <div class="wallet-toggle" title="کیف پول"></div>
+      <div class="wallet-body">
+        <div class="wallet-title">کیف پول · ${walletCashbackShort()}</div>
+        <div class="wallet-bal">موجودی: ${fmt(u.balance)} تومان</div>
+      </div>
+    </div>`;
+}
+
+function memberWalletRowHtml(u) {
+  if (level === 'L1' || level === 'L2' || level === 'L3') return walletRow(u);
+  return '';
+}
+
+function renderCheckout() {
+  const sc = getCart();
+  const amount = sc.amount;
+  const method = effectiveMethodForUser(amount);
+  const isL0 = level === 'L0';
+  const u = USER[level];
+  const blocked = level === 'L3';
+
+  $('#checkout-label').textContent = sc.label;
+
+  let cards = '';
+  const bankSelected = blocked;
+  const walletEl = $('#checkout-wallet-row');
+  const walletAsPay = payMethod === 'wallet' && (level === 'L1' || level === 'L2');
+
+  if (isL0 && !blocked) {
+    const l0Method = payMethod === 'all' ? method : payMethod;
+    cards += simplePayCard({ title: 'درگاه بانکی', iconClass: 'bank', iconText: '🏦', selected: false, payId: 'bank' });
+    if (payMethod === 'wallet') {
+      cards += `
+        <div class="pay-card pay-card-compact selected" data-pay="digipay" data-l0-acquire="wallet">
+          <div class="pay-card-head">
+            <input type="radio" name="merchant-pay" checked />
+            <div class="pay-card-icon wallet">💳</div>
+            <div class="pay-card-body">
+              <div class="pay-card-title">دیجی‌کارت · ۱۰٪ کش‌بک</div>
+              <div class="pay-card-promo">${l0CheckoutAcquireLine('wallet')}</div>
+            </div>
+          </div>
+          <div class="pay-card-ext">هدایت به جرنی دریافت دیجی‌کارت — ۱۰٪ کش‌بک</div>
+        </div>`;
+    } else {
+      cards += buildDigiPayCard(amount, l0Method, true, null);
+    }
+    cards += competitorCards();
+    if (walletEl) walletEl.innerHTML = '';
+  } else {
+    cards += simplePayCard({ title: 'درگاه بانکی', iconClass: 'bank', iconText: '🏦', selected: bankSelected && !walletAsPay, payId: 'bank' });
+
+    if (!blocked) {
+      if (walletAsPay) {
+        cards += walletPayCard(u, amount, true);
+        cards += competitorCards();
+        if (walletEl) walletEl.innerHTML = '';
+      } else if (!isDigiPaySuppressed()) {
+        const coMethod = experienceMethodForAmount(amount) || method;
+        if (coMethod && coMethod !== 'wallet' && coMethod !== 'debt') {
+          cards += buildDigiPayCard(amount, coMethod, false, u);
+        }
+        cards += competitorCards();
+        if (walletEl) walletEl.innerHTML = memberWalletRowHtml(u);
+      } else {
+        cards += competitorCards();
+        if (walletEl) walletEl.innerHTML = memberWalletRowHtml(u);
+      }
+    } else {
+      if (walletEl) walletEl.innerHTML = '';
+      cards += `
+        <div class="pay-card" data-pay="digipay" data-l3-debt="1">
+          <div class="pay-card-head">
+            <input type="radio" name="merchant-pay" />
+            <div class="pay-card-icon dp">DP</div>
+            <div class="pay-card-body">
+              <div class="pay-card-title">خرید با دیجی‌پی</div>
+              <div class="pay-card-sub">اعتبار ${fmt(u.balance)} · بدهی ${fmt(u.debt)} — برای خرید اعتباری تسویه کنید</div>
+            </div>
+          </div>
+        </div>`;
+    }
+  }
+
+  $('#checkout-pay-list').innerHTML = cards;
+
+  const payBtn = $('#payBtn');
+  payBtn.textContent = `پرداخت ${fmt(amount)} تومان`;
+}
+
+function getCheckoutAmount() {
+  return getCart().amount;
+}
+
+function getSelectedPayMethod() {
+  const card = document.querySelector('#checkout-pay-list .pay-card.selected');
+  return card?.dataset?.pay || 'bank';
+}
+
+function openAcquireFlow(method) {
+  const titles = {
+    single: 'دریافت اعتبار تک‌قسطه',
+    four: 'دریافت اعتبار ۴ قسطه',
+    loan: 'دریافت وام دیجی‌پی',
+    digicard: 'دریافت دیجی‌کارت',
+    wallet: 'دریافت دیجی‌کارت',
+  };
+  const descs = {
+    single: 'بخرید، آخر ماه پرداخت کنید — فعال‌سازی اعتبار کمتر از ۲ دقیقه',
+    four: 'خرید در ۴ قسط بدون سود و کارمزد — همین الان اعتبار بگیرید',
+    loan: 'اقساط تا ۲۴ ماه — برای تکمیل خرید، وام دریافت کنید',
+    digicard: 'دیجی‌کارت بگیرید و ۱۰٪ کش‌بک با خرید از دیجی‌کارت دریافت کنید',
+    wallet: 'دیجی‌کارت بگیرید و ۱۰٪ کش‌بک با خرید از دیجی‌کارت دریافت کنید',
+  };
+  const key = method === 'wallet' ? 'digicard' : method;
+  $('#acquire-title').textContent = titles[key] || titles.digicard;
+  $('#acquire-desc').textContent = descs[key] || descs.digicard;
+  $('#acquire-overlay').classList.add('show');
+  $('#acquire-overlay').setAttribute('aria-hidden', 'false');
+}
+
+function closeAcquireFlow() {
+  $('#acquire-overlay').classList.remove('show');
+  $('#acquire-overlay').setAttribute('aria-hidden', 'true');
+}
+
+function openExpressFlow(method) {
+  $('#express-continue').textContent = 'ادامه خرید';
+  const icons = { single: '⚡', four: '۴', loan: '🏦' };
+  const titles = {
+    single: 'شروع خرید با اعتبار تک‌قسطه',
+    four: 'شروع خرید با اعتبار ۴ قسطه',
+    loan: 'شروع خرید با وام دیجی‌پی',
+  };
+  const descs = {
+    single: 'در حال انتقال به جرنی Express تک‌قسطه…',
+    four: 'در حال انتقال به جرنی Express پرداخت ۴ قسطه…',
+    loan: 'در حال انتقال به جرنی Express وام…',
+  };
+  $('#express-icon').textContent = icons[method] || '💜';
+  $('#express-title').textContent = titles[method] || 'شروع خرید';
+  $('#express-desc').textContent = descs[method] || 'ادامه در دیجی‌پی';
+  $('#express-overlay').classList.add('show');
+  $('#express-overlay').setAttribute('aria-hidden', 'false');
+}
+
+function closeExpressFlow() {
+  $('#express-overlay').classList.remove('show');
+  $('#express-overlay').setAttribute('aria-hidden', 'true');
+}
+
+function openDebtFlow() {
+  $('#express-icon').textContent = '⚠️';
+  $('#express-title').textContent = 'تسویه بدهی دیجی‌پی';
+  $('#express-desc').textContent = `بدهی ${fmt(USER.L3.debt)} تومان — برای خرید با دیجی‌پی ابتدا بدهی را تسویه کنید.`;
+  $('#express-continue').textContent = 'ادامه تسویه بدهی';
+  $('#express-overlay').classList.add('show');
+  $('#express-overlay').setAttribute('aria-hidden', 'false');
+}
+
+function handleL0DigiPayAction() {
+  const card = document.querySelector('[data-l0-acquire]');
+  const m = card?.dataset?.l0Acquire || payMethod;
+  if (m === 'wallet' || m === 'digicard') openAcquireFlow('digicard');
+  else if (m === 'single' || m === 'four' || m === 'loan') openAcquireFlow(m);
+  else openAcquireFlow(effectiveMethodForUser(getCheckoutAmount()));
+}
+
+function bindCheckoutInteractions() {
+  const list = $('#checkout-pay-list');
+  if (!list) return;
+
+  list.onclick = e => {
+    const widgetFour = e.target.closest('[data-widget="four-express"]');
+    const widgetSingle = e.target.closest('[data-widget="single-express"]');
+    const widgetLoan = e.target.closest('[data-widget="loan-express"]');
+    if ((widgetFour || widgetSingle || widgetLoan) && level !== 'L0' && level !== 'L3') {
+      e.stopPropagation();
+      openExpressFlow(widgetFour ? 'four' : widgetLoan ? 'loan' : 'single');
+      return;
+    }
+
+    const card = e.target.closest('.pay-card');
+    if (!card || card.classList.contains('disabled')) return;
+
+    $$('#checkout-pay-list .pay-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    const radio = card.querySelector('input[type=radio]');
+    if (radio && !radio.disabled) radio.checked = true;
+
+    if (level === 'L3' && card.dataset.pay === 'digipay') {
+      openDebtFlow();
+      return;
+    }
+
+    if (level === 'L0' && card.dataset.pay === 'digipay') {
+      handleL0DigiPayAction();
+      return;
+    }
+
+    if (card.dataset.pay === 'digipay') {
+      const m = card.dataset.dpMethod || effectiveMethodForUser(getCheckoutAmount());
+      if (m === 'four' || m === 'loan') openExpressFlow(m);
+      else if (m === 'single') openExpressFlow('single');
+    }
+  };
+}
+
+function getRefundScenarioOptions() {
+  const m = refundPayMethod();
+  if (m === 'wallet') return [];
+  if (m === 'loan') {
+    return [
+      { id: 'wallet', label: 'کیف پول نقدی' },
+      { id: 'loan_charge', label: 'شارژ وام' },
+    ];
+  }
+  return [
+    { id: 'wallet', label: 'کیف پول نقدی' },
+    { id: 'credit', label: 'اعتبار' },
+  ];
+}
+
+function refundDestinationMessage(method, scenario, amount) {
+  if (method === 'wallet' || scenario === 'wallet') {
+    return { cls: 'refund-dest', text: `مبلغ ${fmt(amount)} تومان به کیف پول نقدی شما برمی‌گردد.` };
+  }
+  if (method === 'loan' && scenario === 'loan_charge') {
+    return { cls: 'refund-dest to-loan', text: `مبلغ ${fmt(amount)} تومان به وام شما برمی‌گردد — وام شما شارژ می‌شود.` };
+  }
+  const creditLabel = method === 'single' ? 'اعتبار تک‌قسطه' : method === 'four' ? 'اعتبار ۴ قسطه' : 'اعتبار';
+  return { cls: 'refund-dest to-credit', text: `مبلغ ${fmt(amount)} تومان به ${creditLabel} شما برمی‌گردد.` };
+}
+
+function buildRefundContent(method) {
+  const scenarios = {
+    single: { amount: 1000000, product: 'هدفون بی‌سیم', tag: 'اعتبار تک‌قسطه', tagCls: 't-single' },
+    four: { amount: 10000000, product: 'ساعت هوشمند', tag: 'اعتبار ۴ قسطه', tagCls: 't-four' },
+    loan: { amount: 200000000, product: 'گوشی پرچمدار', tag: 'وام دیجی‌پی', tagCls: 't-loan' },
+    wallet: { amount: 1000000, product: 'هدفون بی‌سیم', tag: 'کیف پول دیجی‌پی', tagCls: 't-wallet' },
+  };
+  const s = scenarios[method] || scenarios.four;
+  const dest = refundDestinationMessage(method, refundScenario, s.amount);
+
+  const detail = `<div class="${dest.cls}">${dest.text}</div>`;
+
+  return `
+    <div class="refund-card">
+      <div style="color:var(--gray-600);font-size:.74rem">#DK-942183</div>
+      <div style="font-weight:600;margin:6px 0">${s.product} — ${fmt(s.amount)} تومان</div>
+      <span class="refund-method-tag ${s.tagCls}">${s.tag}</span>
+      ${detail}
+    </div>
+    <button class="dk-btn primary" style="width:100%">درخواست مرجوعی</button>`;
+}
+
+function updateRefundScenarioControl(screen) {
+  const ctrl = $('#refundScenarioControl');
+  const container = $('#refundScenarioBtns');
+  if (!ctrl || !container) return;
+  const opts = getRefundScenarioOptions();
+  const show = screen === 'refund' && level !== 'L0' && opts.length > 0;
+  ctrl.style.display = show ? 'flex' : 'none';
+  if (!show) return;
+  if (!opts.some(o => o.id === refundScenario)) {
+    refundScenario = opts[0].id;
+  }
+  container.innerHTML = opts.map(o => `
+    <button type="button" class="pay-method-btn refund-scenario-btn${refundScenario === o.id ? ' active' : ''}"
+      data-refund-scenario="${o.id}">${o.label}</button>`).join('');
+  container.querySelectorAll('.refund-scenario-btn').forEach(btn => {
+    btn.onclick = () => {
+      refundScenario = btn.dataset.refundScenario;
+      updateRefundScenarioControl(screen);
+      renderRefund();
+      renderSpec('refund');
+    };
+  });
+}
+
+function renderRefund() {
+  const el = $('#refund-content');
+  if (level === 'L0') {
+    el.innerHTML = `
+      <div class="refund-empty">
+        <div class="icon">—</div>
+        <strong>ریفاند در دسترس نیست</strong>
+        <p style="margin-top:10px;font-size:.8rem;line-height:1.6">کاربر دیجی‌پی نبوده و خرید اعتباری انجام نداده.<br>مرجوع فقط برای پرداخت‌های دیجی‌پی است.</p>
+      </div>`;
+    return;
+  }
+  el.innerHTML = buildRefundContent(refundPayMethod());
+}
+
+function updateRefundNav() {
+  const nav = $('#refundNav');
+  if (level === 'L0') {
+    nav.classList.add('disabled-nav');
+    nav.title = 'L0 — بدون ریفاند';
+    if ($('.nav-btn.active')?.dataset.screen === 'refund') {
+      $$('.nav-btn').forEach(b => b.classList.remove('active'));
+      $$('.screen').forEach(s => s.classList.remove('active'));
+      $('[data-screen="checkout"]').classList.add('active');
+      $('#screen-checkout').classList.add('active');
+    }
+  } else {
+    nav.classList.remove('disabled-nav');
+    nav.title = '';
+  }
+}
+
+function renderAll() {
+  const activeNav = document.querySelector('.nav-btn.active');
+  const screen = activeNav ? activeNav.dataset.screen : 'pdp';
+  renderSpec(screen);
+  renderPDP();
+  renderPLP();
+  renderBasket();
+  renderCheckout();
+  bindCheckoutInteractions();
+  renderRefund();
+  updateRefundNav();
+  updatePayMethodControl(screen);
+  updateRefundScenarioControl(screen);
+}
+
+function initApp() {
+  $$('.level-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('.level-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      level = btn.dataset.level;
+      renderAll();
+    });
+  });
+
+  $$('.pay-method-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      applyPayMethod(btn.dataset.payMethod);
+      const activeNav = document.querySelector('.nav-btn.active');
+      const screen = activeNav?.dataset.screen || 'pdp';
+      renderPDP();
+      renderPLP();
+      renderBasket();
+      renderCheckout();
+      bindCheckoutInteractions();
+      renderRefund();
+      updateRefundScenarioControl(screen);
+      renderSpec(screen);
+    });
+  });
+
+  $$('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('disabled-nav')) return;
+      $$('.nav-btn').forEach(b => b.classList.remove('active'));
+      $$('.screen').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      const target = $('#screen-' + btn.dataset.screen);
+      if (target) target.classList.add('active');
+      renderAll();
+    });
+  });
+
+  const payBtn = $('#payBtn');
+  if (payBtn) {
+    payBtn.addEventListener('click', () => {
+      if (level === 'L3' && getSelectedPayMethod() === 'digipay') {
+        openDebtFlow();
+        return;
+      }
+      if (level === 'L3') {
+        alert('پرداخت با درگاه بانکی (شبیه‌سازی)');
+        return;
+      }
+      if (level === 'L0' && getSelectedPayMethod() === 'digipay') {
+        handleL0DigiPayAction();
+        return;
+      }
+      if (getSelectedPayMethod() === 'wallet') {
+        const u = USER[level];
+        const amt = getCheckoutAmount();
+        if (u.balance < amt) {
+          alert('تأیید پرداخت — هدایت به درگاه برای شارژ کیف پول (شبیه‌سازی)');
+        } else {
+          alert('پرداخت از کیف پول (شبیه‌سازی)');
+        }
+        return;
+      }
+      if (level === 'L0') {
+        alert('پرداخت با درگاه بانکی (شبیه‌سازی)');
+        return;
+      }
+      if (getSelectedPayMethod() === 'digipay') {
+        const m = document.querySelector('[data-dp-method]')?.dataset?.dpMethod
+          || effectiveMethodForUser(getCheckoutAmount());
+        openExpressFlow(m);
+        return;
+      }
+      alert('تکمیل پرداخت (شبیه‌سازی)');
+    });
+  }
+
+  $('#express-close')?.addEventListener('click', closeExpressFlow);
+  $('#express-overlay')?.addEventListener('click', e => {
+    if (e.target.id === 'express-overlay') closeExpressFlow();
+  });
+  $('#express-continue')?.addEventListener('click', () => {
+    if (level === 'L3') {
+      alert('رفتن به جرنی تسویه بدهی دیجی‌پی (شبیه‌سازی ریدایرکت)');
+    } else {
+      alert('رفتن به جرنی Express دیجی‌پی (شبیه‌سازی ریدایرکت)');
+    }
+    closeExpressFlow();
+  });
+
+  $('#acquire-close')?.addEventListener('click', closeAcquireFlow);
+  $('#acquire-overlay')?.addEventListener('click', e => {
+    if (e.target.id === 'acquire-overlay') closeAcquireFlow();
+  });
+  $('#acquire-continue')?.addEventListener('click', () => {
+    alert('رفتن به فلو دریافت اعتبار دیجی‌پی (شبیه‌سازی ریدایرکت)');
+    closeAcquireFlow();
+  });
+
+  renderAll();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+</script>
+</body>
+</html>
