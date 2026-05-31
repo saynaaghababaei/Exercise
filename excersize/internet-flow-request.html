@@ -100,8 +100,8 @@
     }
     .thought {
       position: absolute;
-      right: 520px;
-      top: 26px;
+      left: 58px;
+      top: 14px;
       background: #f2f6ff;
       color: #1f2e53;
       padding: 10px 13px;
@@ -115,7 +115,7 @@
     .thought::after {
       content: "";
       position: absolute;
-      right: 30px;
+      left: 42px;
       bottom: -10px;
       width: 16px;
       height: 16px;
@@ -241,15 +241,21 @@
         <svg class="desk-svg" viewBox="0 0 900 330" aria-hidden="true">
           <rect x="0" y="250" width="900" height="80" fill="#0b1326" />
           <rect x="130" y="218" width="420" height="15" rx="8" fill="#13203d"/>
-          <line x1="185" y1="190" x2="185" y2="248" stroke="#9cb2df" stroke-width="6" />
-          <line x1="185" y1="185" x2="220" y2="145" stroke="#9cb2df" stroke-width="6" />
-          <circle id="head" cx="226" cy="120" r="24" fill="#ffc89d" />
-          <line x1="226" y1="145" x2="226" y2="192" stroke="#ffc89d" stroke-width="6" />
-          <line x1="226" y1="160" x2="188" y2="175" stroke="#ffc89d" stroke-width="6" />
-          <line x1="226" y1="160" x2="254" y2="175" stroke="#ffc89d" stroke-width="6" />
-          <line id="smile" x1="218" y1="128" x2="234" y2="128" stroke="#56311c" stroke-width="2.8" stroke-linecap="round" />
-          <circle cx="218" cy="115" r="2.3" fill="#56311c"/>
-          <circle cx="234" cy="115" r="2.3" fill="#56311c"/>
+          <!-- chair -->
+          <path d="M 156 136 v86" stroke="#4a5f8c" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <ellipse cx="188" cy="224" rx="34" ry="8" fill="#101a33" stroke="#2a3d66" stroke-width="1.2"/>
+          <!-- seated person (legs → torso → arms) -->
+          <g stroke="#ffc89d" stroke-width="5" stroke-linecap="round" fill="none">
+            <path d="M 202 188 L 174 214 L 166 248"/>
+            <path d="M 202 188 L 220 212 L 228 248"/>
+            <line x1="200" y1="132" x2="202" y2="188"/>
+            <path d="M 202 150 L 236 168 L 272 208"/>
+            <path d="M 202 150 L 228 172 L 252 212"/>
+          </g>
+          <circle id="head" cx="198" cy="108" r="22" fill="#ffc89d"/>
+          <path id="smile" d="M 188 116 L 208 116" stroke="#56311c" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+          <circle cx="190" cy="102" r="2.3" fill="#56311c"/>
+          <circle cx="206" cy="102" r="2.3" fill="#56311c"/>
           <rect x="320" y="75" width="280" height="155" rx="13" fill="#111e3b" stroke="#3a4f80" />
           <rect x="333" y="90" width="254" height="118" rx="9" fill="#0f172d" stroke="#2f426c" />
           <rect x="430" y="230" width="60" height="10" rx="5" fill="#2d416d"/>
@@ -534,8 +540,7 @@
       edgeBadge.classList.toggle("show", i >= 5);
       thought.classList.toggle("hidden", i !== 0);
       head.setAttribute("fill", i === 8 ? "#ffd4a8" : "#ffc89d");
-      smile.setAttribute("y1", i === 8 ? "127" : "128");
-      smile.setAttribute("y2", i === 8 ? "131" : "128");
+      smile.setAttribute("d", i === 8 ? "M 186 115 Q 198 123 210 115" : "M 188 116 L 208 116");
       activateNodes(["browser"]);
 
       if (i === 0) {
