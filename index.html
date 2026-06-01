@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0e14" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>Flag Sniper — Geography Quiz</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,17 +24,28 @@
       --radius: 12px;
       --font-head: 'Bebas Neue', sans-serif;
       --font-body: 'Inter', system-ui, sans-serif;
+      --app-max: 560px;
+      --pad-x: max(1rem, env(safe-area-inset-left), env(safe-area-inset-right));
+      --pad-bottom: max(1.25rem, env(safe-area-inset-bottom));
+      --touch-min: 48px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
 
     body {
       font-family: var(--font-body);
       background: var(--bg);
       color: var(--text);
       min-height: 100dvh;
+      min-height: 100svh;
       line-height: 1.5;
       overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
 
     #confetti-canvas {
@@ -43,17 +56,25 @@
     }
 
     .app {
-      max-width: 560px;
+      width: 100%;
+      max-width: min(var(--app-max), 100%);
       margin: 0 auto;
-      padding: 1rem 1rem 2rem;
+      padding: max(0.75rem, env(safe-area-inset-top)) var(--pad-x) var(--pad-bottom);
+      min-height: 100vh;
       min-height: 100dvh;
+      min-height: 100svh;
       display: flex;
       flex-direction: column;
+      overflow-x: clip;
     }
+
+    img, svg, video, canvas { max-width: 100%; height: auto; }
+    .panel, .game-panel, .options, .avatar-grid { max-width: 100%; }
 
     header {
       text-align: center;
-      padding: 1.25rem 0 0.75rem;
+      padding: clamp(0.5rem, 2vw, 1.25rem) 0 clamp(0.35rem, 1.5vw, 0.75rem);
+      flex-shrink: 0;
     }
 
     .logo {
@@ -66,13 +87,30 @@
     }
 
     .tagline {
-      font-size: 0.85rem;
+      font-size: clamp(0.75rem, 2.5vw, 0.85rem);
       color: var(--muted);
       margin-top: 0.25rem;
+      padding: 0 0.25rem;
+      line-height: 1.4;
     }
 
-    .screen { display: none; flex: 1; flex-direction: column; }
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+    }
     .screen.active { display: flex; }
+
+    #screen-menu.active,
+    #screen-profile.active,
+    #screen-game.active,
+    #screen-results.active {
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
 
     /* Loading */
     .loading-wrap {
@@ -101,16 +139,23 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 1.25rem;
-      margin-bottom: 1rem;
+      padding: clamp(0.85rem, 3vw, 1.25rem);
+      margin-bottom: clamp(0.65rem, 2vw, 1rem);
     }
 
     .panel h2 {
       font-family: var(--font-head);
-      font-size: 1.5rem;
+      font-size: clamp(1.25rem, 4.5vw, 1.5rem);
       letter-spacing: 0.06em;
       color: var(--accent);
       margin-bottom: 0.75rem;
+    }
+
+    .game-panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     /* XP bar */
@@ -146,15 +191,17 @@
 
     .diff-btn {
       padding: 0.75rem 0.5rem;
+      min-height: var(--touch-min);
       border: 2px solid var(--border);
       border-radius: var(--radius);
       background: var(--surface2);
       color: var(--text);
       font-family: var(--font-body);
       font-weight: 600;
-      font-size: 0.8rem;
+      font-size: clamp(0.75rem, 2.8vw, 0.8rem);
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
+      touch-action: manipulation;
     }
 
     .diff-btn span {
@@ -165,7 +212,9 @@
       margin-top: 0.15rem;
     }
 
-    .diff-btn:hover { border-color: var(--accent-dim); }
+    @media (hover: hover) {
+      .diff-btn:hover { border-color: var(--accent-dim); }
+    }
     .diff-btn.selected {
       border-color: var(--accent);
       background: rgba(0, 255, 136, 0.1);
@@ -175,14 +224,21 @@
     .btn {
       display: block;
       width: 100%;
+      min-height: var(--touch-min);
       padding: 0.9rem 1.25rem;
       border: none;
       border-radius: var(--radius);
       font-family: var(--font-body);
       font-weight: 700;
-      font-size: 1rem;
+      font-size: clamp(0.95rem, 3.5vw, 1rem);
       cursor: pointer;
       transition: transform 0.15s, opacity 0.15s;
+      touch-action: manipulation;
+    }
+
+    .btn-retry {
+      width: 100%;
+      max-width: 280px;
     }
 
     .btn:active { transform: scale(0.98); }
@@ -193,7 +249,10 @@
       color: #0a0e14;
     }
 
-    .btn-primary:hover:not(:disabled) { background: var(--accent-dim); }
+    @media (hover: hover) {
+      .btn-primary:hover:not(:disabled) { background: var(--accent-dim); }
+      .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+    }
 
     .btn-ghost {
       background: transparent;
@@ -202,22 +261,36 @@
       margin-top: 0.5rem;
     }
 
-    .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
-
     /* Game HUD */
     .hud {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.35rem 0.5rem;
       margin-bottom: 0.75rem;
-      font-size: 0.8rem;
+      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
     }
 
-    .hud .score { text-align: left; font-weight: 700; }
-    .hud .score span { color: var(--accent); font-size: 1.1rem; }
-    .hud .q-num { text-align: center; color: var(--muted); }
-    .hud .streak { text-align: right; }
+    .hud .score {
+      text-align: left;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .hud .score span { color: var(--accent); font-size: clamp(0.95rem, 3.5vw, 1.1rem); }
+    .hud .q-num {
+      text-align: center;
+      color: var(--muted);
+      white-space: nowrap;
+      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+    }
+    .hud .streak {
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .hud .streak.hot { color: var(--warning); }
     .hud .streak.fire { color: var(--accent); }
 
@@ -252,10 +325,13 @@
     }
 
     .question-prompt {
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3.5vw, 1rem);
       font-weight: 600;
       text-align: center;
       margin-bottom: 1rem;
+      line-height: 1.35;
+      word-wrap: break-word;
+      hyphens: auto;
     }
 
     .flag-display {
@@ -263,44 +339,70 @@
       justify-content: center;
       align-items: center;
       margin-bottom: 1rem;
-      min-height: 100px;
+      min-height: clamp(72px, 20vw, 100px);
+      width: 100%;
     }
 
     .flag-display img {
-      max-width: 200px;
+      max-width: min(200px, 85vw);
       width: 100%;
       height: auto;
+      aspect-ratio: 3 / 2;
+      object-fit: cover;
       border-radius: 6px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
       border: 1px solid var(--border);
     }
 
     .flag-display.dual {
-      gap: 1rem;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.5rem, 2vw, 1rem);
+      width: 100%;
+      max-width: 100%;
     }
 
     .flag-display.dual .flag-card {
-      flex: 1;
-      min-width: 120px;
-      max-width: 160px;
+      width: 100%;
+      max-width: none;
+      min-width: 0;
       text-align: center;
       cursor: pointer;
-      padding: 0.75rem;
+      padding: clamp(0.5rem, 2vw, 0.75rem);
       border: 2px solid var(--border);
       border-radius: var(--radius);
       background: var(--surface2);
       transition: border-color 0.2s, transform 0.15s;
+      touch-action: manipulation;
+      min-height: var(--touch-min);
     }
 
-    .flag-display.dual .flag-card:hover:not(.disabled) {
+    @media (hover: hover) {
+      .flag-display.dual .flag-card:hover:not(.disabled) {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+    }
+
+    .flag-display.dual .flag-card:active:not(.disabled) {
       border-color: var(--accent);
-      transform: translateY(-2px);
+      transform: scale(0.98);
     }
 
     .flag-display.dual .flag-card img {
       max-width: 100%;
-      margin-bottom: 0.5rem;
+      width: 100%;
+      height: auto;
+      margin-bottom: 0.35rem;
+      aspect-ratio: 3 / 2;
+      object-fit: cover;
+    }
+
+    .flag-display.dual .flag-card span {
+      display: block;
+      font-size: clamp(0.65rem, 2.8vw, 0.8rem);
+      line-height: 1.2;
+      word-break: break-word;
     }
 
     .flag-display.dual .flag-card.disabled {
@@ -310,36 +412,51 @@
 
     .country-name-lg {
       font-family: var(--font-head);
-      font-size: 2rem;
+      font-size: clamp(1.5rem, 7vw, 2rem);
       letter-spacing: 0.04em;
       text-align: center;
       color: var(--accent);
       margin-bottom: 1rem;
+      line-height: 1.1;
+      word-break: break-word;
+      padding: 0 0.25rem;
     }
 
     .options {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: clamp(0.4rem, 1.5vw, 0.5rem);
+      width: 100%;
     }
 
     .option-btn {
+      min-height: var(--touch-min);
       padding: 0.85rem 1rem;
       border: 2px solid var(--border);
       border-radius: var(--radius);
       background: var(--surface2);
       color: var(--text);
       font-family: var(--font-body);
-      font-size: 0.95rem;
+      font-size: clamp(0.875rem, 3.2vw, 0.95rem);
       font-weight: 500;
       text-align: left;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
+      touch-action: manipulation;
+      word-break: break-word;
+      line-height: 1.3;
     }
 
-    .option-btn:hover:not(:disabled) {
+    @media (hover: hover) {
+      .option-btn:hover:not(:disabled) {
+        border-color: var(--accent-dim);
+        background: rgba(0, 255, 136, 0.06);
+      }
+    }
+
+    .option-btn:active:not(:disabled) {
       border-color: var(--accent-dim);
-      background: rgba(0, 255, 136, 0.06);
+      background: rgba(0, 255, 136, 0.08);
     }
 
     .option-btn.correct {
@@ -364,7 +481,7 @@
 
     .results-hero .final-score {
       font-family: var(--font-head);
-      font-size: 4rem;
+      font-size: clamp(2.75rem, 14vw, 4rem);
       color: var(--accent);
       line-height: 1;
     }
@@ -372,9 +489,10 @@
     .results-hero p { color: var(--muted); margin-top: 0.5rem; }
 
     .breakdown {
-      max-height: 280px;
+      max-height: min(280px, 40vh);
       overflow-y: auto;
       margin-bottom: 1rem;
+      -webkit-overflow-scrolling: touch;
     }
 
     .breakdown-item {
@@ -410,34 +528,55 @@
       border: 1px solid var(--border);
     }
 
-    .breakdown-item .detail { flex: 1; min-width: 0; }
-    .breakdown-item .detail strong { display: block; }
-    .breakdown-item .detail small { color: var(--muted); }
+    .breakdown-item .detail {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .breakdown-item .detail strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .breakdown-item .detail small {
+      color: var(--muted);
+      display: block;
+      line-height: 1.3;
+      word-break: break-word;
+    }
 
     /* Leaderboard */
     .lb-list { list-style: none; }
     .lb-list li {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
       align-items: center;
-      padding: 0.5rem 0;
+      gap: 0.5rem;
+      padding: 0.55rem 0;
       border-bottom: 1px solid var(--border);
-      font-size: 0.85rem;
+      font-size: clamp(0.8rem, 2.8vw, 0.85rem);
     }
 
     .lb-list li:last-child { border-bottom: none; }
-    .lb-list .rank { color: var(--accent); font-weight: 700; width: 2rem; }
-    .lb-list .pts { font-weight: 600; }
+    .lb-list .rank { color: var(--accent); font-weight: 700; }
+    .lb-list .lb-mid {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .lb-list .pts { font-weight: 600; white-space: nowrap; }
 
     .name-input {
       width: 100%;
+      min-height: var(--touch-min);
       padding: 0.75rem 1rem;
       border: 2px solid var(--border);
       border-radius: var(--radius);
       background: var(--surface2);
       color: var(--text);
       font-family: var(--font-body);
-      font-size: 1rem;
+      font-size: 16px;
       margin-bottom: 0.75rem;
     }
 
@@ -446,17 +585,233 @@
       border-color: var(--accent);
     }
 
+    /* Player profile */
+    .player-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .player-info {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      min-width: 0;
+    }
+
+    .player-info .player-name {
+      font-weight: 700;
+      font-size: clamp(0.9rem, 3.2vw, 1rem);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-edit-profile {
+      flex-shrink: 0;
+      padding: 0.45rem 0.75rem;
+      min-height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    @media (hover: hover) {
+      .btn-edit-profile:hover { color: var(--accent); border-color: var(--accent-dim); }
+    }
+
+    .avatar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #f8fafc;
+      border: 2px solid var(--border);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    .avatar svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .avatar.size-sm { width: 36px; height: 36px; }
+    .avatar.size-md { width: 56px; height: 56px; }
+    .avatar.size-lg { width: 88px; height: 88px; }
+
+    .profile-intro {
+      color: var(--muted);
+      font-size: clamp(0.8rem, 2.8vw, 0.9rem);
+      margin-bottom: 1rem;
+      line-height: 1.45;
+    }
+
+    .profile-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
+    }
+
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(0.45rem, 2vw, 0.7rem);
+      margin-bottom: 1rem;
+      max-height: min(340px, 52vh);
+      overflow-y: auto;
+      padding: 0.15rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .avatar-pick {
+      aspect-ratio: 1;
+      padding: 0.4rem;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: #f0f4f8;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      touch-action: manipulation;
+      min-height: var(--touch-min);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar-pick .avatar {
+      width: 90%;
+      height: 90%;
+      max-width: 64px;
+      max-height: 64px;
+      border: none;
+      box-shadow: none;
+    }
+
+    .avatar-pick.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.25);
+      background: rgba(0, 255, 136, 0.08);
+    }
+
+    @media (hover: hover) {
+      .avatar-pick:hover:not(.selected) { border-color: var(--accent-dim); }
+    }
+
+    .avatar-pick:active { transform: scale(0.96); }
+
+    .hud-left {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      min-width: 0;
+    }
+
+    .hud .hud-avatar .avatar { width: 28px; height: 28px; border-width: 1px; }
+
+    .results-player {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .results-player .player-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .score-saved-msg {
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 0.35rem;
+    }
+
+    .lb-list li {
+      grid-template-columns: auto auto 1fr auto;
+    }
+
+    .lb-list .lb-avatar .avatar { width: 28px; height: 28px; }
+
     .error-msg {
       color: var(--danger);
       text-align: center;
-      padding: 1rem;
-      font-size: 0.9rem;
+      padding: 1rem var(--pad-x);
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
+      line-height: 1.45;
+      word-break: break-word;
     }
 
     .hidden { display: none !important; }
 
+    /* Narrow phones (iPhone SE, small Android) */
     @media (max-width: 380px) {
       .diff-grid { grid-template-columns: 1fr; }
+      .avatar-grid { grid-template-columns: repeat(3, 1fr); }
+      .flag-display.dual { grid-template-columns: 1fr; }
+      .flag-display.dual .flag-card {
+        max-width: 220px;
+        margin: 0 auto;
+        width: 100%;
+      }
+      .hud { gap: 0.2rem 0.35rem; }
+      .hud .score-label { display: none; }
+    }
+
+    /* Extra-narrow */
+    @media (max-width: 320px) {
+      .logo { font-size: 2rem; }
+      .player-bar { flex-wrap: wrap; }
+      .btn-edit-profile { width: 100%; text-align: center; }
+    }
+
+    /* Very small height (landscape phone) */
+    @media (max-height: 500px) and (orientation: landscape) {
+      header { padding: 0.25rem 0; }
+      .logo { font-size: 1.75rem; }
+      .tagline { display: none; }
+      .panel { padding: 0.65rem; margin-bottom: 0.5rem; }
+      .flag-display { min-height: 56px; margin-bottom: 0.5rem; }
+      .flag-display img { max-width: 140px; }
+      .breakdown { max-height: 120px; }
+      .avatar-grid { max-height: 140px; }
+    }
+
+    /* Tablets */
+    @media (min-width: 600px) {
+      :root { --app-max: 640px; --pad-x: max(1.25rem, env(safe-area-inset-left)); }
+      .flag-display img { max-width: 240px; }
+    }
+
+    /* Desktop & large tablets */
+    @media (min-width: 900px) {
+      :root { --app-max: 720px; }
+      body {
+        background: radial-gradient(ellipse at 50% 0%, #121820 0%, var(--bg) 55%);
+      }
+    }
+
+    /* Touch devices — comfortable tap targets */
+    @media (pointer: coarse) {
+      .option-btn, .diff-btn, .avatar-pick, .flag-display.dual .flag-card {
+        min-height: var(--touch-min);
+      }
     }
   </style>
 </head>
@@ -474,12 +829,33 @@
       <div class="loading-wrap">
         <div class="spinner" id="loading-spinner" aria-hidden="true"></div>
         <p id="loading-text">Loading countries…</p>
-        <button type="button" class="btn btn-primary hidden" id="btn-retry" style="max-width:220px">Try again</button>
+        <button type="button" class="btn btn-primary btn-retry hidden" id="btn-retry">Try again</button>
+      </div>
+    </section>
+
+    <!-- Profile setup -->
+    <section id="screen-profile" class="screen">
+      <div class="panel">
+        <h2>Create Your Profile</h2>
+        <p class="profile-intro">Enter your name and pick a cute character — just like a profile icon.</p>
+        <label class="profile-label" for="profile-name">Your name</label>
+        <input type="text" class="name-input" id="profile-name" placeholder="Explorer name" maxlength="20" autocomplete="nickname" />
+        <span class="profile-label">Choose avatar</span>
+        <div class="avatar-grid" id="avatar-grid" role="listbox" aria-label="Choose avatar"></div>
+        <button type="button" class="btn btn-primary" id="btn-profile-continue" disabled>Continue</button>
       </div>
     </section>
 
     <!-- Menu -->
     <section id="screen-menu" class="screen">
+      <div class="player-bar panel" id="player-bar">
+        <div class="player-info">
+          <span id="menu-avatar"></span>
+          <span class="player-name" id="menu-player-name">Player</span>
+        </div>
+        <button type="button" class="btn-edit-profile" id="btn-edit-profile">Edit</button>
+      </div>
+
       <div class="xp-bar-wrap panel">
         <div class="xp-labels">
           <span>Level: <strong id="level-name">Rookie</strong></span>
@@ -508,13 +884,16 @@
     <!-- Game -->
     <section id="screen-game" class="screen">
       <div class="hud">
-        <div class="score">Score: <span id="hud-score">0</span></div>
+        <div class="hud-left">
+          <span class="hud-avatar" id="hud-avatar"></span>
+          <div class="score"><span class="score-label">Score: </span><span id="hud-score">0</span></div>
+        </div>
         <div class="q-num" id="hud-q">1 / 10</div>
         <div class="streak" id="hud-streak">🔥 0</div>
       </div>
       <div class="timer-wrap"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
 
-      <div class="panel" style="flex:1">
+      <div class="panel game-panel">
         <span class="q-type-badge" id="q-type-label">Flag ID</span>
         <p class="question-prompt" id="q-prompt"></p>
         <div id="q-visual"></div>
@@ -525,21 +904,20 @@
     <!-- Results -->
     <section id="screen-results" class="screen">
       <div class="results-hero panel">
+        <div class="results-player">
+          <span id="results-avatar"></span>
+          <span class="player-name" id="results-player-name"></span>
+        </div>
         <p>Final Score</p>
         <div class="final-score" id="final-score">0</div>
         <p id="results-summary"></p>
         <p id="xp-earned" style="color:var(--accent);margin-top:0.5rem;font-weight:600"></p>
+        <p class="score-saved-msg" id="score-saved-msg">Score saved to leaderboard</p>
       </div>
 
       <div class="panel">
         <h2>Breakdown</h2>
         <div class="breakdown" id="breakdown"></div>
-      </div>
-
-      <div class="panel" id="save-score-panel">
-        <h2>Save Score</h2>
-        <input type="text" class="name-input" id="player-name" placeholder="Your name" maxlength="20" />
-        <button type="button" class="btn btn-primary" id="btn-save-score">Save to Leaderboard</button>
       </div>
 
       <button type="button" class="btn btn-primary" id="btn-play-again">Play Again</button>
@@ -587,17 +965,76 @@
     const STORAGE = {
       xp: 'flagsniper_xp',
       leaderboard: 'flagsniper_leaderboard',
+      profile: 'flagsniper_profile',
     };
+
+    const AVATAR_LEGACY = {
+      globe: 'boy', compass: 'girl', map: 'doctor', mountain: 'chef',
+      plane: 'pilot', binoculars: 'nerd', flag: 'cop', trophy: 'grad',
+    };
+
+    function buildCuteAvatar(o) {
+      const skin = o.skin;
+      const shirt = o.shirt;
+      const hair = o.hair || '';
+      const extra = o.extra || '';
+      const clip = 'av' + o.id;
+      return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<circle cx="40" cy="40" r="39" fill="#F8FAFC"/>
+<clipPath id="${clip}"><circle cx="40" cy="40" r="36"/></clipPath>
+<g clip-path="url(#${clip})">
+<ellipse cx="40" cy="64" rx="30" ry="18" fill="${shirt}"/>
+<ellipse cx="40" cy="36" rx="23" ry="25" fill="${skin}"/>
+${hair}
+<ellipse cx="29" cy="38" rx="6" ry="7" fill="#fff"/>
+<ellipse cx="51" cy="38" rx="6" ry="7" fill="#fff"/>
+<circle cx="29" cy="39" r="3.5" fill="#2D3748"/>
+<circle cx="51" cy="39" r="3.5" fill="#2D3748"/>
+<circle cx="30.5" cy="37" r="1.2" fill="#fff"/>
+<circle cx="52.5" cy="37" r="1.2" fill="#fff"/>
+<ellipse cx="24" cy="47" rx="4.5" ry="2.8" fill="#FFB4C2" opacity=".65"/>
+<ellipse cx="56" cy="47" rx="4.5" ry="2.8" fill="#FFB4C2" opacity=".65"/>
+<path d="M33 49 Q40 53 47 49" stroke="#F472B6" stroke-width="2" fill="none" stroke-linecap="round"/>
+${extra}
+</g></svg>`;
+    }
+
+    const AVATAR_DEFS = [
+      { id: 'boy', label: 'Alex', skin: '#FFD5B8', shirt: '#4F8EF7', hair: '<path d="M14 34 Q40 10 66 34 L62 48 Q40 36 18 48 Z" fill="#5C4033"/>' },
+      { id: 'girl', label: 'Mia', skin: '#FFDBAC', shirt: '#FF6B9D', hair: '<path d="M12 36 Q40 6 68 36 L66 52 Q40 38 14 52 Z" fill="#FF8EC7"/><circle cx="22" cy="32" r="6" fill="#FF8EC7"/><circle cx="58" cy="32" r="6" fill="#FF8EC7"/>' },
+      { id: 'doctor', label: 'Dr. Sara', skin: '#E8B88A', shirt: '#fff', hair: '<path d="M16 32 Q40 12 64 32 L60 46 Q40 34 20 46 Z" fill="#2C1810"/>', extra: '<rect x="28" y="58" width="24" height="8" fill="#fff" stroke="#E2E8F0"/><circle cx="52" cy="52" r="5" fill="#E53E3E"/><path d="M52 49v6M49 52h6" stroke="#fff" stroke-width="1.5"/>' },
+      { id: 'chef', label: 'Marco', skin: '#FFD5B8', shirt: '#fff', hair: '<path d="M18 30 Q40 14 62 30 L58 44 Q40 34 22 44 Z" fill="#3D2314"/>', extra: '<path d="M22 18 Q40 4 58 18 L56 26 Q40 16 24 26 Z" fill="#F7FAFC" stroke="#CBD5E0"/><rect x="30" y="56" width="20" height="10" rx="2" fill="#fff" stroke="#E2E8F0"/>' },
+      { id: 'pilot', label: 'Sam', skin: '#C68642', shirt: '#2B6CB0', hair: '<path d="M16 34 Q40 14 64 34 L60 46 Q40 36 20 46 Z" fill="#1A1208"/>', extra: '<path d="M14 28 L26 24 L54 24 L66 28 L58 32 L22 32 Z" fill="#4A5568"/><rect x="24" y="30" width="32" height="6" rx="2" fill="#63B3ED" opacity=".9"/>' },
+      { id: 'nerd', label: 'Kim', skin: '#FFDBAC', shirt: '#48BB78', hair: '<path d="M14 36 Q40 8 66 36 L64 50 Q40 40 16 50 Z" fill="#1A202C"/>', extra: '<rect x="20" y="34" width="40" height="10" rx="3" fill="none" stroke="#4A5568" stroke-width="2"/><line x1="40" y1="34" x2="40" y2="44" stroke="#4A5568" stroke-width="2"/>' },
+      { id: 'artist', label: 'Luna', skin: '#FFD5B8', shirt: '#9F7AEA', hair: '<path d="M16 32 Q40 10 64 32 L62 48 Q40 36 18 48 Z" fill="#553C9A"/>', extra: '<ellipse cx="40" cy="16" rx="18" ry="6" fill="#805AD5"/>' },
+      { id: 'cop', label: 'Joe', skin: '#E8B88A', shirt: '#2C5282', hair: '<path d="M18 32 Q40 14 62 32 L58 44 Q40 34 22 44 Z" fill="#2D3748"/>', extra: '<rect x="26" y="14" width="28" height="10" rx="3" fill="#2C5282"/><rect x="30" y="10" width="20" height="6" rx="2" fill="#2B6CB0"/>' },
+      { id: 'fire', label: 'Rosa', skin: '#8D5524', shirt: '#C53030', hair: '<path d="M14 34 Q40 10 66 34 L64 48 Q40 38 16 48 Z" fill="#1A1208"/>', extra: '<rect x="28" y="12" width="24" height="12" rx="4" fill="#C53030"/><rect x="32" y="8" width="16" height="6" fill="#E53E3E"/>' },
+      { id: 'grad', label: 'Emma', skin: '#FFDBAC', shirt: '#2D3748', hair: '<path d="M12 36 Q40 8 68 36 L66 54 Q40 42 14 54 Z" fill="#D69E2E"/>', extra: '<path d="M18 20 L40 10 L62 20 L58 26 L22 26 Z" fill="#2D3748"/><rect x="36" y="10" width="8" height="14" fill="#F6E05E"/>' },
+      { id: 'astro', label: 'Lee', skin: '#FFD5B8', shirt: '#E2E8F0', hair: '<path d="M18 32 Q40 12 62 32 L58 44 Q40 34 22 44 Z" fill="#2D3748"/>', extra: '<ellipse cx="40" cy="18" rx="22" ry="14" fill="#E2E8F0" stroke="#CBD5E0"/><rect x="30" y="14" width="20" height="8" rx="4" fill="#63B3ED" opacity=".5"/>' },
+      { id: 'farmer', label: 'Pat', skin: '#C68642', shirt: '#D69E2E', hair: '<path d="M16 34 Q40 12 64 34 L60 46 Q40 36 20 46 Z" fill="#744210"/>', extra: '<path d="M20 22 Q40 10 60 22 L56 30 Q40 20 24 30 Z" fill="#F6AD55"/><rect x="34" y="18" width="12" height="4" fill="#975A16"/>' },
+      { id: 'music', label: 'Zoe', skin: '#FFDBAC', shirt: '#ED64A6', hair: '<path d="M12 38 Q40 6 68 38 L66 56 Q40 44 14 56 Z" fill="#9B2C2C"/>', extra: '<circle cx="58" cy="58" r="10" fill="#F6AD55"/><circle cx="58" cy="58" r="4" fill="#744210"/>' },
+      { id: 'crown', label: 'Maya', skin: '#FFD5B8', shirt: '#B794F4', hair: '<path d="M14 36 Q40 8 66 36 L64 52 Q40 40 16 52 Z" fill="#553C9A"/>', extra: '<path d="M24 16 L30 24 L40 12 L50 24 L56 16 L52 22 H28 Z" fill="#F6E05E" stroke="#D69E2E"/>' },
+      { id: 'biz', label: 'David', skin: '#E8B88A', shirt: '#2D3748', hair: '<path d="M18 30 Q40 14 62 30 L58 42 Q40 32 22 42 Z" fill="#4A3728"/>', extra: '<path d="M28 54 H52 L50 62 H30 Z" fill="#fff"/><rect x="34" y="50" width="12" height="8" fill="#E53E3E"/>' },
+      { id: 'scout', label: 'Taj', skin: '#8D5524', shirt: '#38A169', hair: '<path d="M16 32 Q40 10 64 32 L62 48 Q40 36 18 48 Z" fill="#1A1208"/>', extra: '<path d="M22 20 Q40 8 58 20 L54 28 Q40 18 26 28 Z" fill="#48BB78"/>' },
+    ];
+
+    const AVATARS = AVATAR_DEFS.map((d) => ({
+      id: d.id,
+      label: d.label,
+      svg: buildCuteAvatar(d),
+    }));
 
     let countries = [];
     let difficulty = 'easy';
     let gameState = null;
     let timerInterval = null;
     let confettiAnim = null;
+    let selectedAvatarId = null;
 
     const $ = (id) => document.getElementById(id);
     const screens = {
       loading: $('screen-loading'),
+      profile: $('screen-profile'),
       menu: $('screen-menu'),
       game: $('screen-game'),
       results: $('screen-results'),
@@ -669,6 +1106,111 @@
       localStorage.setItem(STORAGE.leaderboard, JSON.stringify(list));
     }
 
+    function getAvatar(id) {
+      const resolved = AVATAR_LEGACY[id] || id;
+      return AVATARS.find((a) => a.id === resolved) || AVATARS[0];
+    }
+
+    function avatarMarkup(id, sizeClass = 'size-sm') {
+      const a = getAvatar(id);
+      return `<span class="avatar ${sizeClass}" role="img" aria-label="${escapeHtml(a.label)}">${a.svg}</span>`;
+    }
+
+    function getProfile() {
+      try {
+        const raw = localStorage.getItem(STORAGE.profile);
+        if (!raw) return null;
+        const p = JSON.parse(raw);
+        if (!p?.name?.trim() || !p?.avatarId || !getAvatar(p.avatarId)) return null;
+        return { name: p.name.trim(), avatarId: p.avatarId };
+      } catch {
+        return null;
+      }
+    }
+
+    function setProfile(profile) {
+      localStorage.setItem(
+        STORAGE.profile,
+        JSON.stringify({ name: profile.name.trim(), avatarId: profile.avatarId })
+      );
+    }
+
+    function updateMenuProfileUI() {
+      const profile = getProfile();
+      if (!profile) return;
+      $('menu-avatar').innerHTML = avatarMarkup(profile.avatarId, 'size-md');
+      $('menu-player-name').textContent = profile.name;
+    }
+
+    function updateHudProfileUI() {
+      const profile = getProfile();
+      if (!profile) return;
+      $('hud-avatar').innerHTML = avatarMarkup(profile.avatarId, 'size-sm');
+    }
+
+    function validateProfileForm() {
+      const nameOk = $('profile-name').value.trim().length > 0;
+      const avatarOk = !!selectedAvatarId;
+      $('btn-profile-continue').disabled = !(nameOk && avatarOk);
+    }
+
+    function renderAvatarGrid() {
+      const grid = $('avatar-grid');
+      grid.innerHTML = '';
+      AVATARS.forEach((a) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'avatar-pick';
+        btn.dataset.avatarId = a.id;
+        btn.setAttribute('role', 'option');
+        btn.setAttribute('aria-label', a.label);
+        btn.innerHTML = avatarMarkup(a.id, 'size-md');
+        btn.addEventListener('click', () => {
+          selectedAvatarId = a.id;
+          grid.querySelectorAll('.avatar-pick').forEach((b) => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          validateProfileForm();
+        });
+        grid.appendChild(btn);
+      });
+    }
+
+    function openProfileScreen(prefill = false) {
+      renderAvatarGrid();
+      selectedAvatarId = null;
+      $('profile-name').value = '';
+      if (prefill) {
+        const profile = getProfile();
+        if (profile) {
+          $('profile-name').value = profile.name;
+          selectedAvatarId = profile.avatarId;
+          const pick = $('avatar-grid').querySelector(`[data-avatar-id="${profile.avatarId}"]`);
+          if (pick) pick.classList.add('selected');
+        }
+      }
+      validateProfileForm();
+      showScreen('profile');
+    }
+
+    function completeProfile() {
+      const name = $('profile-name').value.trim();
+      if (!name || !selectedAvatarId) return;
+      setProfile({ name, avatarId: selectedAvatarId });
+      updateMenuProfileUI();
+      showScreen('menu');
+    }
+
+    function goAfterLoad() {
+      updateXpUI();
+      renderLeaderboard();
+      if (getProfile()) {
+        updateMenuProfileUI();
+        showScreen('menu');
+      } else {
+        openProfileScreen(false);
+      }
+    }
+
     function renderLeaderboard() {
       const list = getLeaderboard().slice(0, 10);
       const el = $('leaderboard');
@@ -681,7 +1223,8 @@
       empty.classList.add('hidden');
       list.forEach((entry, i) => {
         const li = document.createElement('li');
-        li.innerHTML = `<span class="rank">#${i + 1}</span><span>${escapeHtml(entry.name)} · ${entry.difficulty}</span><span class="pts">${entry.score}</span>`;
+        const avatarId = entry.avatarId || 'boy';
+        li.innerHTML = `<span class="rank">#${i + 1}</span><span class="lb-avatar">${avatarMarkup(avatarId, 'size-sm')}</span><span class="lb-mid">${escapeHtml(entry.name)} · ${entry.difficulty}</span><span class="pts">${entry.score}</span>`;
         el.appendChild(li);
       });
     }
@@ -782,9 +1325,7 @@
           const list = source.normalize(data);
           if (list.length < 20) throw new Error('Not enough country data');
           countries = list;
-          updateXpUI();
-          renderLeaderboard();
-          showScreen('menu');
+          goAfterLoad();
           return;
         } catch (err) {
           lastError = err;
@@ -916,6 +1457,7 @@
         answered: false,
       };
       $('hud-score').textContent = '0';
+      updateHudProfileUI();
       showScreen('game');
       showQuestion();
     }
@@ -1106,17 +1648,24 @@
         breakdown.appendChild(item);
       });
 
-      $('save-score-panel').classList.remove('hidden');
-      $('player-name').value = '';
+      const profile = getProfile();
+      if (profile) {
+        $('results-avatar').innerHTML = avatarMarkup(profile.avatarId, 'size-lg');
+        $('results-player-name').textContent = profile.name;
+        saveScoreToLeaderboard();
+      }
+
       showScreen('results');
 
       if (correctCount >= 7) fireConfetti(120);
     }
 
-    function saveScore() {
-      const name = $('player-name').value.trim() || 'Anonymous';
+    function saveScoreToLeaderboard() {
+      const profile = getProfile();
+      if (!profile || !gameState) return;
       const entry = {
-        name,
+        name: profile.name,
+        avatarId: profile.avatarId,
         score: gameState.score,
         difficulty: gameState.difficulty,
         date: new Date().toISOString(),
@@ -1126,7 +1675,6 @@
       list.sort((a, b) => b.score - a.score);
       saveLeaderboard(list.slice(0, 50));
       renderLeaderboard();
-      $('save-score-panel').classList.add('hidden');
     }
 
     /* Confetti */
@@ -1195,10 +1743,18 @@
       });
     });
 
-    $('btn-start').addEventListener('click', startGame);
+    $('btn-start').addEventListener('click', () => {
+      if (!getProfile()) openProfileScreen(false);
+      else startGame();
+    });
     $('btn-play-again').addEventListener('click', startGame);
-    $('btn-menu').addEventListener('click', () => showScreen('menu'));
-    $('btn-save-score').addEventListener('click', saveScore);
+    $('btn-menu').addEventListener('click', () => {
+      updateMenuProfileUI();
+      showScreen('menu');
+    });
+    $('btn-profile-continue').addEventListener('click', completeProfile);
+    $('btn-edit-profile').addEventListener('click', () => openProfileScreen(true));
+    $('profile-name').addEventListener('input', validateProfileForm);
     $('btn-retry').addEventListener('click', loadCountries);
 
     loadCountries();
