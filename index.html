@@ -760,6 +760,40 @@
 
     .hidden { display: none !important; }
 
+    /* Designer credit — global footer (standard placement) */
+    .site-footer {
+      flex-shrink: 0;
+      margin-top: auto;
+      padding: 1.25rem 0 0.35rem;
+      text-align: center;
+      font-size: clamp(0.65rem, 2.2vw, 0.72rem);
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      line-height: 1.5;
+    }
+
+    .site-footer p { margin: 0; }
+
+    .site-footer .footer-mark {
+      display: block;
+      font-family: var(--font-head);
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      color: var(--border);
+      margin-bottom: 0.25rem;
+    }
+
+    .site-footer a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    @media (hover: hover) {
+      .site-footer a:hover { color: var(--accent); }
+    }
+
     /* Narrow phones (iPhone SE, small Android) */
     @media (max-width: 380px) {
       .diff-grid { grid-template-columns: 1fr; }
@@ -925,6 +959,11 @@
     </section>
 
     <p id="fetch-error" class="error-msg hidden"></p>
+
+    <footer class="site-footer">
+      <span class="footer-mark">✦</span>
+      <p>Crafted by <a href="https://github.com/saynaaghababaei" target="_blank" rel="noopener noreferrer">Sayna Aghababaei</a></p>
+    </footer>
   </div>
 
   <script>
