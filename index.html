@@ -1116,13 +1116,23 @@ ${extra}
       return `<span class="avatar ${sizeClass}" role="img" aria-label="${escapeHtml(a.label)}">${a.svg}</span>`;
     }
 
+    function generatePlayerId() {
+      return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+    }
+
     function getProfile() {
       try {
         const raw = localStorage.getItem(STORAGE.profile);
         if (!raw) return null;
         const p = JSON.parse(raw);
         if (!p?.name?.trim() || !p?.avatarId || !getAvatar(p.avatarId)) return null;
-        return { name: p.name.trim(), avatarId: p.avatarId };
+        const profile = {
+          playerId: p.playerId || generatePlayerId(),
+          name: p.name.trim(),
+          avatarId: p.avatarId,
+        };
+        if (!p.playerId) setProfile(profile);
+        return profile;
       } catch {
         return null;
       }
@@ -1131,8 +1141,35 @@ ${extra}
     function setProfile(profile) {
       localStorage.setItem(
         STORAGE.profile,
-        JSON.stringify({ name: profile.name.trim(), avatarId: profile.avatarId })
+        JSON.stringify({
+          playerId: profile.playerId || generatePlayerId(),
+          name: profile.name.trim(),
+          avatarId: profile.avatarId,
+        })
       );
+    }
+
+    function isMyLeaderboardEntry(entry, profile) {
+      if (!profile) return false;
+      if (entry.playerId && entry.playerId === profile.playerId) return true;
+      return !entry.playerId && entry.name === profile.name;
+    }
+
+    function syncLeaderboardWithProfile(oldProfile, newProfile) {
+      const list = getLeaderboard();
+      let changed = false;
+      list.forEach((entry) => {
+        const mine =
+          entry.playerId === newProfile.playerId ||
+          (oldProfile && isMyLeaderboardEntry(entry, oldProfile));
+        if (mine) {
+          entry.playerId = newProfile.playerId;
+          entry.name = newProfile.name;
+          entry.avatarId = newProfile.avatarId;
+          changed = true;
+        }
+      });
+      if (changed) saveLeaderboard(list);
     }
 
     function updateMenuProfileUI() {
@@ -1195,8 +1232,16 @@ ${extra}
     function completeProfile() {
       const name = $('profile-name').value.trim();
       if (!name || !selectedAvatarId) return;
-      setProfile({ name, avatarId: selectedAvatarId });
+      const oldProfile = getProfile();
+      const newProfile = {
+        playerId: oldProfile?.playerId || generatePlayerId(),
+        name,
+        avatarId: selectedAvatarId,
+      };
+      setProfile(newProfile);
+      if (oldProfile) syncLeaderboardWithProfile(oldProfile, newProfile);
       updateMenuProfileUI();
+      renderLeaderboard();
       showScreen('menu');
     }
 
@@ -1221,10 +1266,13 @@ ${extra}
         return;
       }
       empty.classList.add('hidden');
+      const profile = getProfile();
       list.forEach((entry, i) => {
         const li = document.createElement('li');
-        const avatarId = entry.avatarId || 'boy';
-        li.innerHTML = `<span class="rank">#${i + 1}</span><span class="lb-avatar">${avatarMarkup(avatarId, 'size-sm')}</span><span class="lb-mid">${escapeHtml(entry.name)} · ${entry.difficulty}</span><span class="pts">${entry.score}</span>`;
+        const isMe = isMyLeaderboardEntry(entry, profile);
+        const displayName = isMe && profile ? profile.name : entry.name;
+        const avatarId = isMe && profile ? profile.avatarId : entry.avatarId || 'boy';
+        li.innerHTML = `<span class="rank">#${i + 1}</span><span class="lb-avatar">${avatarMarkup(avatarId, 'size-sm')}</span><span class="lb-mid">${escapeHtml(displayName)} · ${entry.difficulty}</span><span class="pts">${entry.score}</span>`;
         el.appendChild(li);
       });
     }
@@ -1664,6 +1712,7 @@ ${extra}
       const profile = getProfile();
       if (!profile || !gameState) return;
       const entry = {
+        playerId: profile.playerId,
         name: profile.name,
         avatarId: profile.avatarId,
         score: gameState.score,
